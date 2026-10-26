@@ -1,202 +1,52 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ОКАК | Кибермем 2025</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#080b14">
+<meta name="description" content="Cyber Cat 2K25 — цифровая лаборатория мема Окак. Исследуй историю, культуру и неоновую вселенную киберкота.">
+<meta property="og:title" content="Cyber Cat 2K25 — Окак в цифровой вселенной"><meta property="og:description" content="Неоновый киберпанк-проект об интернет-культуре, меме Окак и цифровом коте.">
+<title>Cyber Cat 2K25 — Окак в цифровой вселенной</title><link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css"><script src="script.js" defer></script>
 </head>
 <body>
-    <div class="grid-bg"></div>
-    <div class="matrix-rain" id="matrixRain"></div>
-    <div class="neon-lines">
-        <div class="line line-1"></div>
-        <div class="line line-2"></div>
-        <div class="line line-3"></div>
-    </div>
-    <div id="particles-js"></div>
-    <div class="interactive-bg" id="interactiveBg"></div>
-    <div class="particles-container" id="particlesContainer"></div>
-    <div class="digital-glitch" id="digitalGlitch"></div>
-    <div class="digital-clock" id="digitalClock">00:00:00</div>
-    <div class="counter">Поделились мемом: <span id="share-count">1,427,891</span></div>
-    
-    <div class="container">
-        <header>
-            <div class="logo">
-                <div class="logo-morph">
-                    <span class="logo-text">ОКАК MEME</span>
-                </div>
-            </div>
-            <nav>
-                <ul>
-                    <li><a href="#"><i class="fas fa-home"></i> Главная</a></li>
-                    <li><a href="#"><i class="fas fa-history"></i> История</a></li>
-                    <li><a href="#"><i class="fas fa-viruses"></i> Распространение</a></li>
-                    <li><a href="#"><i class="fas fa-brain"></i> Анализ</a></li>
-                    <li><a href="#"><i class="fas fa-envelope"></i> Контакты</a></li>
-                </ul>
-            </nav>
-        </header>
-
-        <section class="hero">
-            <h1>МЕМ МАЯ 2025</h1>
-            <p>Погрузись в цифровую вселенную, где мистический кот стал символом интернет-культуры</p>
-            
-            <div class="meme-card">
-                <div class="cat-hood">
-                    <div class="hood"></div>
-                    <div class="cat-face">
-                        <div class="eyes">
-                            <div class="eye"><div class="pupil"></div></div>
-                            <div class="eye"><div class="pupil"></div></div>
-                        </div>
-                        <div class="mouth"></div>
-                    </div>
-                </div>
-                <div class="okak-text">ОКАК</div>
-                <div class="subtitle">
-                    Легендарный мем, покоривший интернет в начале мая 2025.<br>
-                    Чёрный кот в капюшоне с загадочной фразой "окак"<br>
-                    стал символом неожиданных поворотов и мистических совпадений
-                </div>
-                <div class="meme-date">Вирусный период: 1-15 мая 2025</div>
-            </div>
-            
-            <button class="btn" id="activateBtn">УЗНАТЬ БОЛЬШЕ</button>
-            
-            <div class="audio-controls">
-                <div class="audio-btn" id="sound1">
-                    <i class="fas fa-bolt"></i>
-                </div>
-                <div class="audio-btn" id="sound2">
-                    <i class="fas fa-music"></i>
-                </div>
-                <div class="audio-btn" id="sound3">
-                    <i class="fas fa-cat"></i>
-                </div>
-            </div>
-        </section>
-
-        <section class="parallax-section">
-            <div class="parallax-bg"></div>
-            <div class="parallax-content">
-                <h2>ФЕНОМЕН "ОКАК"</h2>
-                <p>Загадочный мем "Окак" появился в сети 1 мая 2025 года и за две недели стал глобальным культурным феноменом. Исследователи до сих пор спорят о его происхождении и значении.</p>
-                <p>Киберкот в капюшоне стал символом новой интернет-эры, где мемы формируют коллективное сознание.</p>
-                
-                <div class="cyber-map">
-                    <div class="map-node node-1" data-info="Социальные сети"><i class="fab fa-twitter"></i></div>
-                    <div class="map-node node-2" data-info="Меметика"><i class="fas fa-brain"></i></div>
-                    <div class="map-node node-3" data-info="Виртуальная реальность"><i class="fas fa-vr-cardboard"></i></div>
-                    <div class="map-node node-4" data-info="База данных"><i class="fas fa-database"></i></div>
-                    <div class="map-node node-5" data-info="ИИ Анализ"><i class="fas fa-robot"></i></div>
-                    <div class="map-node node-6" data-info="Культурное влияние"><i class="fas fa-globe"></i></div>
-                    <div class="map-node node-7" data-info="Психология"><i class="fas fa-user"></i></div>
-                    <div class="map-node node-8" data-info="Будущее"><i class="fas fa-rocket"></i></div>
-                </div>
-            </div>
-        </section>
-
-        <section class="terminal-section">
-            <div class="terminal-header">
-                <div class="terminal-buttons">
-                    <div class="terminal-btn btn-close"></div>
-                    <div class="terminal-btn btn-min"></div>
-                    <div class="terminal-btn btn-max"></div>
-                </div>
-                <div class="terminal-title">system@okak-meme:~</div>
-            </div>
-            <div class="terminal-body" id="terminalOutput">
-                <div>> Инициализация системы... УСПЕШНО</div>
-                <div>> Загрузка данных о меме... 100%</div>
-                <div>> Анализ вирусного распространения...</div>
-                <div id="terminalText"></div>
-            </div>
-            <div class="terminal-input">
-                <span class="terminal-prompt">okak-meme:~$</span>
-                <span id="terminalCommand">_</span>
-                <span class="terminal-cursor"></span>
-            </div>
-        </section>
-
-        <section class="features">
-            <div class="card">
-                <i class="fas fa-viruses"></i>
-                <h3>Вирусное распространение</h3>
-                <p>Мем "Окак" распространился по сети со скоростью лесного пожара, достигнув 1.4 миллиона репостов за первые 72 часа.</p>
-            </div>
-            <div class="card">
-                <i class="fas fa-brain"></i>
-                <h3>Коллективное сознание</h3>
-                <p>Феномен "Окак" демонстрирует, как интернет формирует новые формы коллективного разума и культурные коды.</p>
-            </div>
-            <div class="card">
-                <i class="fas fa-cat"></i>
-                <h3>Символизм кота</h3>
-                <p>Кот в капюшоне стал архетипическим символом тайны и непредсказуемости в цифровую эпоху.</p>
-            </div>
-        </section>
-
-        <div class="hologram-section">
-            <h2 style="margin-bottom: 40px; color: var(--neon-blue);">ГОЛОГРАФИЧЕСКАЯ ПРОЕКЦИЯ</h2>
-            <div class="hologram-container">
-                <div class="hologram">
-                    <div class="hologram-inner"></div>
-                    <div class="hologram-core"></div>
-                    <div class="hologram-grid"></div>
-                </div>
-            </div>
-            <p style="margin-top: 30px; max-width: 600px; margin-left: auto; margin-right: auto;">
-                Исследуйте голографическую проекцию мема "Окак" в 3D-пространстве с использованием квантовых точек и лазерной интерференции.
-            </p>
-        </div>
-
-        <div class="tech-cube-container">
-            <div class="cube">
-                <div class="face front">
-                    <i class="fas fa-share-alt"></i>
-                    <h3>РЕПОСТЫ</h3>
-                </div>
-                <div class="face back">
-                    <i class="fas fa-globe"></i>
-                    <h3>ГЛОБАЛИЗАЦИЯ</h3>
-                </div>
-                <div class="face right">
-                    <i class="fas fa-brain"></i>
-                    <h3>ПСИХОЛОГИЯ</h3>
-                </div>
-                <div class="face left">
-                    <i class="fas fa-robot"></i>
-                    <h3>ИИ АНАЛИЗ</h3>
-                </div>
-                <div class="face top">
-                    <i class="fas fa-history"></i>
-                    <h3>ИСТОРИЯ</h3>
-                </div>
-                <div class="face bottom">
-                    <i class="fas fa-crystal-ball"></i>
-                    <h3>ПРЕДСКАЗАНИЯ</h3>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <footer>
-        <div class="container">
-            <div class="social-links">
-                <a href="#"><i class="fab fa-discord"></i><span>Discord</span></a>
-                <a href="https://t.me/Andrej1608"><i class="fab fa-telegram"></i><span>Telegram</span></a>
-                <a href="https://github.com/Ahdrej545/cyber-cat-2k25.github.io.git"><i class="fab fa-github"></i><span>GitHub</span></a>
-                <a href="#"><i class="fab fa-instagram"></i><span>Instagram</span></a>
-            </div>
-            <p>© 2025 ОКАК MEME | Все права в цифровой вселенной защищены</p>
-        </div>
-    </footer>
-
-    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-    <script src="script.js"></script>
-</body>
-</html>
+<a class="skip-link" href="#main">Перейти к содержимому</a><div class="ambient-grid" aria-hidden="true"></div><canvas id="particle-canvas" aria-hidden="true"></canvas><div class="scanline" aria-hidden="true"></div>
+<header class="site-header">
+<a class="brand" href="#home" aria-label="Cyber Cat — на главную"><span class="brand-mark" aria-hidden="true">⌁</span><span><strong>CYBER CAT</strong><small>MEME ARCHIVE / 2K25</small></span></a>
+<button class="menu-toggle" id="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-nav"><span></span><span></span><span></span><span class="sr-only">Открыть меню</span></button>
+<nav class="primary-nav" id="primary-nav" aria-label="Основная навигация"><a href="#home" class="nav-link active">Главная</a><a href="#lore" class="nav-link">История</a><a href="#spread" class="nav-link">Распространение</a><a href="#lab" class="nav-link">Кибер-лаборатория</a><a href="#about" class="nav-link">О проекте</a></nav>
+<button class="motion-toggle" id="motion-toggle" type="button" aria-pressed="false" title="Переключить фоновые эффекты"><span class="status-dot"></span><span id="motion-label">ЭФФЕКТЫ: ON</span></button>
+</header>
+<main id="main">
+<section class="hero section-wrap" id="home">
+<div class="hero-copy"><p class="eyebrow"><span class="live-dot"></span> DIGITAL CULTURE / ARCHIVE 025</p><h1>НЕ ОБЪЯСНЯЙ.<br><span class="gradient-text">ПРОСТО ОКАК.</span></h1>
+<p class="hero-lead">Добро пожаловать в цифровую вселенную Cyber Cat — место, где мемы становятся легендами, а чёрный кот знает больше, чем говорит.</p>
+<div class="hero-actions"><a class="button button-primary" href="#lore">Исследовать архив <span aria-hidden="true">↗</span></a><button class="button button-ghost" id="terminal-focus" type="button"><span aria-hidden="true">⌘</span> Запустить терминал</button></div>
+<div class="hero-meta"><span><i class="meta-icon">◈</i> НЕОНОВАЯ ЭСТЕТИКА</span><span><i class="meta-icon">⌬</i> ИНТЕРАКТИВНЫЙ АРХИВ</span></div></div>
+<div class="hero-visual" aria-label="Иллюстрация киберкота в капюшоне"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="visual-cross cross-one">+</div><div class="visual-cross cross-two">+</div><div class="cat-halo"></div>
+<div class="cyber-cat" id="cyber-cat" role="img" aria-label="Стилизованное лицо чёрного кота в капюшоне"><div class="hood-back"></div><div class="cat-ear ear-left"></div><div class="cat-ear ear-right"></div><div class="cat-head"><div class="cat-brow brow-left"></div><div class="cat-brow brow-right"></div><div class="cat-eye eye-left"><span></span></div><div class="cat-eye eye-right"><span></span></div><div class="cat-nose"></div><div class="cat-mouth"></div><div class="whisker whisker-left"></div><div class="whisker whisker-right"></div></div><div class="hood-front"></div><div class="cat-collar"></div></div>
+<div class="floating-tag tag-top"><span class="tag-pip"></span> SUBJECT: CAT_025</div><div class="floating-tag tag-bottom"><span class="tag-pip pink"></span> STATUS: UNREADABLE</div><div class="visual-caption">FIG. 01 <span>THE OKAK ENTITY</span></div></div>
+<div class="hero-bottomline"><span>SCROLL TO EXPLORE</span><span class="scroll-line"></span><span>01 / 05</span></div></section>
+<section class="ticker" aria-label="Ключевые темы"><div class="ticker-track"><span>ОКАК</span><b>✳</b><span>MEME CULTURE</span><b>✳</b><span>CYBER CAT</span><b>✳</b><span>NO CONTEXT</span><b>✳</b><span>ОКАК</span><b>✳</b><span>MEME CULTURE</span><b>✳</b><span>CYBER CAT</span><b>✳</b><span>NO CONTEXT</span><b>✳</b></div></section>
+<section class="content-section section-wrap" id="lore"><div class="section-heading"><div><p class="eyebrow">01 / THE LORE</p><h2>У КАЖДОГО МЕМА<br>ЕСТЬ <span class="gradient-text">СВОЯ ИСТОРИЯ.</span></h2></div><p class="section-intro">Иногда одного слова и правильного выражения достаточно, чтобы интернет понял всё без объяснений.</p></div>
+<div class="lore-grid"><article class="info-card lore-main"><span class="card-index">ARCHIVE / 001</span><div class="card-symbol">猫</div><h3>Феномен «Окак»</h3><p>Короткая реакция, которая живёт в контексте: удивление, ирония, растерянность или просто идеальный ответ на странную ситуацию. Значение меняется вместе с тем, кто и когда её использует.</p><span class="card-foot">MEME IS A LANGUAGE <i>↗</i></span></article>
+<article class="info-card"><span class="card-index">ARCHIVE / 002</span><div class="small-symbol cyan">⌁</div><h3>Кот как символ</h3><p>Интернет давно сделал котов универсальными героями. Капюшон и неоновая эстетика добавляют персонажу загадочности, не отнимая у него мемного характера.</p><span class="card-foot">CHARACTER STUDY <i>↗</i></span></article>
+<article class="info-card"><span class="card-index">ARCHIVE / 003</span><div class="small-symbol pink">◉</div><h3>Контекст решает</h3><p>Один и тот же мем способен выражать совершенно разные эмоции. Именно вариативность и возможность присвоить образ себе поддерживают жизнь интернет-шуток.</p><span class="card-foot">CULTURE IN MOTION <i>↗</i></span></article></div>
+<p class="editorial-note"><span>ВАЖНО</span> Это творческая интерпретация интернет-культуры, а не подтверждённая историческая хроника или статистическое исследование.</p></section>
+<section class="spread-section" id="spread"><div class="section-wrap"><div class="section-heading"><div><p class="eyebrow">02 / SPREAD PATTERN</p><h2>КАК РАБОТАЕТ<br><span class="gradient-text">ВИРУСНЫЙ МЕМ.</span></h2></div><p class="section-intro">Посмотри на условную схему распространения. Нажимай на узлы, чтобы изучать этапы мемного цикла.</p></div>
+<div class="spread-layout"><div class="network-panel"><div class="network-top"><span><i class="live-dot"></i> MEME NETWORK</span><span>SIMULATION / 01</span></div><div class="network-map" id="network-map"><svg class="network-lines" viewBox="0 0 600 360" preserveAspectRatio="none" aria-hidden="true"><path d="M300 180 L120 72 M300 180 L480 72 M300 180 L100 270 M300 180 L500 270 M120 72 L480 72 M100 270 L500 270 M120 72 L100 270 M480 72 L500 270"/></svg>
+<button class="network-node node-center selected" type="button" data-node="origin" aria-pressed="true"><span>ОКАК</span><small>ORIGIN</small></button><button class="network-node node-a" type="button" data-node="social" aria-pressed="false"><span>◉</span><small>СОЦСЕТИ</small></button><button class="network-node node-b" type="button" data-node="remix" aria-pressed="false"><span>⟁</span><small>РЕМИКСЫ</small></button><button class="network-node node-c" type="button" data-node="community" aria-pressed="false"><span>⌘</span><small>СООБЩЕСТВА</small></button><button class="network-node node-d" type="button" data-node="culture" aria-pressed="false"><span>✳</span><small>КУЛЬТУРА</small></button><div class="network-pulse" aria-hidden="true"></div></div><div class="network-bottom"><span>● СХЕМА ВЗАИМОДЕЙСТВИЯ</span><span>ДАННЫЕ УСЛОВНЫЕ</span></div></div>
+<aside class="node-detail" aria-live="polite"><p class="eyebrow" id="node-kicker">NODE / 00</p><h3 id="node-title">Исходный мем</h3><p id="node-description">Всё начинается с узнаваемого образа или короткой фразы. Люди подхватывают идею, когда она попадает в настроение и контекст.</p><div class="node-progress"><span id="node-progress-fill"></span></div><span class="node-hint">ВЫБЕРИ УЗЕЛ НА СХЕМЕ <span>↖</span></span></aside></div></div></section>
+<section class="lab-section section-wrap" id="lab"><div class="section-heading"><div><p class="eyebrow">03 / CYBER LAB</p><h2>ТЕРМИНАЛ<br><span class="gradient-text">НА СВЯЗИ.</span></h2></div><p class="section-intro">Интерактивная игрушечная консоль. Команды работают локально в браузере и ничего не отправляют на сервер.</p></div>
+<div class="terminal" id="terminal"><div class="terminal-topbar"><div class="window-controls"><span></span><span></span><span></span></div><div class="terminal-name"><span class="terminal-lock">▣</span> cybercat@archive:~</div><span class="terminal-version">CC-OS v2.5</span></div>
+<div class="terminal-content" id="terminal-output" role="log" aria-live="polite" aria-label="Вывод терминала"><p class="term-muted">Cyber Cat Interactive Shell [версия 2.5.0]</p><p class="term-muted">Это демонстрация. Введи <strong>help</strong>, чтобы увидеть команды.</p><p><span class="term-ok">[ OK ]</span> Интерфейс готов.</p></div>
+<form class="terminal-form" id="terminal-form"><label class="terminal-prompt" for="terminal-input">guest@cybercat:~$</label><input id="terminal-input" name="command" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="введи help и нажми Enter" aria-label="Команда терминала"><button type="submit" aria-label="Выполнить команду">↵</button></form>
+<div class="terminal-quick"><span>БЫСТРЫЕ КОМАНДЫ</span><button type="button" data-command="help">help</button><button type="button" data-command="about">about</button><button type="button" data-command="status">status</button><button type="button" data-command="clear">clear</button></div></div>
+<div class="lab-bottom"><div><span class="lab-icon">◈</span><p><strong>Локальная симуляция</strong><small>Без сервера и выполнения системных команд</small></p></div><button class="button button-ghost" id="cat-sound" type="button"><span aria-hidden="true">♫</span> Звук кота</button></div></section>
+<section class="manifesto-section"><div class="section-wrap manifesto"><span class="manifesto-mark">“</span><p>ИНТЕРНЕТ — ЭТО ХАОС.<br><span>МЕМЫ — ЕГО ЯЗЫК.</span></p><span class="manifesto-caption">CYBER CAT ARCHIVE / KEEP IT WEIRD</span></div></section>
+<section class="about-section section-wrap" id="about"><div class="about-copy"><p class="eyebrow">04 / ABOUT THE PROJECT</p><h2>СДЕЛАНО ИЗ<br><span class="gradient-text">ЛЮБОПЫТСТВА.</span></h2><p>Cyber Cat 2K25 — экспериментальный фан-проект о мемах, визуальной культуре и атмосфере цифрового подполья. Это не официальный источник статистики и не аналитическая платформа.</p><a class="text-link" href="https://github.com/Ahdrej545/cyber-cat-2k25.github.io" target="_blank" rel="noopener noreferrer">Посмотреть исходный код <span>↗</span></a></div>
+<div class="about-card"><div class="about-card-top"><span>PROJECT FILE</span><span>CC / 025</span></div><div class="about-logo">CC<span>_</span></div><dl><div><dt>TYPE</dt><dd>INTERACTIVE WEB EXPERIENCE</dd></div><div><dt>THEME</dt><dd>CYBERPUNK / MEME CULTURE</dd></div><div><dt>BUILD</dt><dd>HTML · CSS · JAVASCRIPT</dd></div><div><dt>STATUS</dt><dd><span class="status-dot"></span> EXPERIMENTAL</dd></div></dl></div></section>
+</main>
+<footer class="site-footer"><a class="brand footer-brand" href="#home"><span class="brand-mark">⌁</span><span><strong>CYBER CAT</strong><small>MEME ARCHIVE / 2K25</small></span></a><p>© <span id="year">2026</span> CYBER CAT. СОЗДАНО ДЛЯ ИНТЕРНЕТ-КУЛЬТУРЫ.</p><div class="footer-links"><a href="https://github.com/Ahdrej545/cyber-cat-2k25.github.io" target="_blank" rel="noopener noreferrer">GITHUB ↗</a><a href="https://t.me/Andrej1608" target="_blank" rel="noopener noreferrer">TELEGRAM ↗</a><a href="#home">НАВЕРХ ↑</a></div></footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body></html>
