@@ -6,6 +6,7 @@ on:
       - cyber-cat-2k25
   push:
     branches:
+      - cyber-cat-2k25
       - feature/cyber-cat-2k25-v2
 
 permissions:
