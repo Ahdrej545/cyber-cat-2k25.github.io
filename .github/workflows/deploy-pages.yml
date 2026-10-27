@@ -28,19 +28,41 @@ jobs:
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v6
 
-      - name: Prepare static site
+      - name: Prepare site and legacy URL alias
+        shell: bash
         run: |
-          test -f "cyber-cat 2k25/index.html"
-          test -f "cyber-cat 2k25/style.css"
-          test -f "cyber-cat 2k25/script.js"
-          test -f "cyber-cat 2k25/favicon.svg"
-          test -f "cyber-cat 2k25/assets/sounds/cat-roar.mp3"
-          touch "cyber-cat 2k25/.nojekyll"
+          set -euo pipefail
+          SOURCE="cyber-cat 2k25"
+          OUTPUT="_site"
+
+          test -f "$SOURCE/index.html"
+          test -f "$SOURCE/style.css"
+          test -f "$SOURCE/script.js"
+          test -f "$SOURCE/favicon.svg"
+          test -f "$SOURCE/assets/sounds/cat-roar.mp3"
+
+          # Publish the current canonical URL at the project root.
+          mkdir -p "$OUTPUT"
+          cp -R "$SOURCE/." "$OUTPUT/"
+
+          # Keep the previous URL working too, for bookmarks and older links.
+          mkdir -p "$OUTPUT/cyber-cat 2k25"
+          cp -R "$SOURCE/." "$OUTPUT/cyber-cat 2k25/"
+
+          # Tell Pages not to run Jekyll over these static files.
+          touch "$OUTPUT/.nojekyll"
+          touch "$OUTPUT/cyber-cat 2k25/.nojekyll"
+
+          # Fail the build if either published entry point is incomplete.
+          test -f "$OUTPUT/index.html"
+          test -f "$OUTPUT/cyber-cat 2k25/index.html"
+          test -f "$OUTPUT/cyber-cat 2k25/style.css"
+          test -f "$OUTPUT/cyber-cat 2k25/script.js"
 
       - name: Upload site artifact
         uses: actions/upload-pages-artifact@v5
         with:
-          path: "cyber-cat 2k25"
+          path: "_site"
 
   deploy:
     environment:
