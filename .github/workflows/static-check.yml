@@ -8,6 +8,7 @@ on:
     branches:
       - cyber-cat-2k25
       - feature/cyber-cat-2k25-v2
+      - feature/cyber-cat-2k25-v1.1
 
 permissions:
   contents: read
@@ -86,6 +87,17 @@ jobs:
 
           check(/href=["']style\.css["']/.test(html), 'page links its stylesheet');
           check(/src=["']script\.js["']/.test(html), 'page links its JavaScript');
+
+          const generatorIds = ['meme-generator', 'meme-context', 'meme-result',
+            'meme-caption', 'generate-meme', 'copy-meme', 'share-meme'];
+          check(generatorIds.every((id) => idSet.has(id)),
+            'reaction generator has all expected interactive elements');
+          check(/const memeOptions=\{/.test(js),
+            'reaction generator data exists');
+          check(/navigator\.share/.test(js),
+            'sharing uses the native share sheet when available');
+          check(/copyToClipboard/.test(js),
+            'copy/share includes a clipboard compatibility fallback');
 
           if (failed) process.exit(1);
           NODE
