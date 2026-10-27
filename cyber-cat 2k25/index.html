@@ -37,7 +37,38 @@
 <div class="spread-layout"><div class="network-panel"><div class="network-top"><span><i class="live-dot"></i> MEME NETWORK</span><span>SIMULATION / 01</span></div><div class="network-map" id="network-map"><svg class="network-lines" viewBox="0 0 600 360" preserveAspectRatio="none" aria-hidden="true"><path d="M300 180 L120 72 M300 180 L480 72 M300 180 L100 270 M300 180 L500 270 M120 72 L480 72 M100 270 L500 270 M120 72 L100 270 M480 72 L500 270"/></svg>
 <button class="network-node node-center selected" type="button" data-node="origin" aria-pressed="true"><span>ОКАК</span><small>ORIGIN</small></button><button class="network-node node-a" type="button" data-node="social" aria-pressed="false"><span>◉</span><small>СОЦСЕТИ</small></button><button class="network-node node-b" type="button" data-node="remix" aria-pressed="false"><span>⟁</span><small>РЕМИКСЫ</small></button><button class="network-node node-c" type="button" data-node="community" aria-pressed="false"><span>⌘</span><small>СООБЩЕСТВА</small></button><button class="network-node node-d" type="button" data-node="culture" aria-pressed="false"><span>✳</span><small>КУЛЬТУРА</small></button><div class="network-pulse" aria-hidden="true"></div></div><div class="network-bottom"><span>● СХЕМА ВЗАИМОДЕЙСТВИЯ</span><span>ДАННЫЕ УСЛОВНЫЕ</span></div></div>
 <aside class="node-detail" aria-live="polite"><p class="eyebrow" id="node-kicker">NODE / 00</p><h3 id="node-title">Исходный мем</h3><p id="node-description">Всё начинается с узнаваемого образа или короткой фразы. Люди подхватывают идею, когда она попадает в настроение и контекст.</p><div class="node-progress"><span id="node-progress-fill"></span></div><span class="node-hint">ВЫБЕРИ УЗЕЛ НА СХЕМЕ <span>↖</span></span></aside></div></div></section>
-<section class="lab-section section-wrap" id="lab"><div class="section-heading"><div><p class="eyebrow">03 / CYBER LAB</p><h2>ТЕРМИНАЛ<br><span class="gradient-text">НА СВЯЗИ.</span></h2></div><p class="section-intro">Интерактивная игрушечная консоль. Команды работают локально в браузере и ничего не отправляют на сервер.</p></div>
+<section class="lab-section section-wrap" id="lab"><div class="section-heading"><div><p class="eyebrow">03 / CYBER LAB</p><h2>ЛАБОРАТОРИЯ<br><span class="gradient-text">НА СВЯЗИ.</span></h2></div><p class="section-intro">Экспериментальная зона Cyber Cat: локальный генератор мем-реакций и игрушечная консоль. Всё работает в браузере, без отправки данных на сервер.</p></div>
+
+<div class="meme-generator" id="meme-generator" aria-labelledby="meme-generator-title">
+  <div class="generator-topline"><span class="live-dot" aria-hidden="true"></span><span>LOCAL MEME ENGINE</span><span class="generator-build">CC / REACTION-01</span></div>
+  <div class="generator-heading">
+    <div><p class="eyebrow">EXPERIMENT / 001</p><h3 id="meme-generator-title">СОБЕРИ СВОЙ <span class="gradient-text">ОКАК.</span></h3></div>
+    <p>Выбери ситуацию — генератор подберёт реакцию. Всё работает прямо в браузере.</p>
+  </div>
+  <div class="generator-layout">
+    <div class="generator-controls">
+      <label for="meme-context">Контекст реакции</label>
+      <select id="meme-context" name="meme-context">
+        <option value="plot-twist">Неожиданный поворот</option>
+        <option value="awkward">Неловкий момент</option>
+        <option value="technology">Техника опять чудит</option>
+        <option value="plans">Планы пошли не так</option>
+        <option value="everyday">Обычный день</option>
+      </select>
+      <p class="generator-hint">Можно нажимать несколько раз — будут появляться новые варианты.</p>
+      <div class="generator-actions">
+        <button class="button button-primary" id="generate-meme" type="button">Сгенерировать <span aria-hidden="true">↻</span></button>
+        <button class="button button-ghost" id="copy-meme" type="button">Копировать</button>
+        <button class="button button-ghost" id="share-meme" type="button">Поделиться ↗</button>
+      </div>
+    </div>
+    <div class="generator-result" aria-live="polite" aria-atomic="true">
+      <span class="generator-stamp">REACTION / RANDOM OUTPUT</span>
+      <p id="meme-result">Я моргнул — а сюжет уже в третьем сезоне. Окак.</p>
+      <div class="generator-result-footer"><span id="meme-caption">СЦЕНАРИЙ: НЕОЖИДАННЫЙ ПОВОРОТ</span><span class="generator-mark" aria-hidden="true">猫</span></div>
+    </div>
+  </div>
+</div>
 <div class="terminal" id="terminal"><div class="terminal-topbar"><div class="window-controls"><span></span><span></span><span></span></div><div class="terminal-name"><span class="terminal-lock">▣</span> cybercat@archive:~</div><span class="terminal-version">CC-OS v2.5</span></div>
 <div class="terminal-content" id="terminal-output" role="log" aria-live="polite" aria-label="Вывод терминала"><p class="term-muted">Cyber Cat Interactive Shell [версия 2.5.0]</p><p class="term-muted">Это демонстрация. Введи <strong>help</strong>, чтобы увидеть команды.</p><p><span class="term-ok">[ OK ]</span> Интерфейс готов.</p></div>
 <form class="terminal-form" id="terminal-form"><label class="terminal-prompt" for="terminal-input">guest@cybercat:~$</label><input id="terminal-input" name="command" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="введи help и нажми Enter" aria-label="Команда терминала"><button type="submit" aria-label="Выполнить команду">↵</button></form>
