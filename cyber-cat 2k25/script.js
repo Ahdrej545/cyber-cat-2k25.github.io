@@ -531,7 +531,8 @@ const memeStudioThemes={
   cyber:{top:"#061421",bottom:"#122b42",accent:"#4df5e8",secondary:"#a98bff"},
   sunset:{top:"#200c35",bottom:"#f14d79",accent:"#ffca78",secondary:"#ff4ca5"},
   glitch:{top:"#100923",bottom:"#39205f",accent:"#bca0ff",secondary:"#ff5fba"},
-  acid:{top:"#081b12",bottom:"#273d10",accent:"#d7ff65",secondary:"#4df5e8"}
+  acid:{top:"#081b12",bottom:"#273d10",accent:"#d7ff65",secondary:"#4df5e8"},
+  cat:{top:"#090d20",bottom:"#24143b",accent:"#4df5e8",secondary:"#ff4ca5",motif:"cat"}
 };
 function drawMemeBackground(ctx,width,height,theme){
   const gradient=ctx.createLinearGradient(0,0,width,height);
@@ -542,12 +543,26 @@ function drawMemeBackground(ctx,width,height,theme){
   ctx.globalAlpha=.22;ctx.strokeStyle=theme.accent;ctx.lineWidth=2;
   for(let x=0;x<=width;x+=48){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,height);ctx.stroke()}
   for(let y=0;y<=height;y+=48){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(width,y);ctx.stroke()}
-  ctx.globalAlpha=.3;ctx.strokeStyle=theme.secondary;ctx.lineWidth=7;
-  for(let i=0;i<5;i++){
-    ctx.beginPath();ctx.arc(width*.5,height*.51,130+i*85,0,Math.PI*2);ctx.stroke();
+  if(theme.motif==="cat"){
+    ctx.globalAlpha=.2;ctx.strokeStyle=theme.secondary;ctx.lineWidth=7;
+    for(let i=0;i<4;i++){ctx.beginPath();ctx.arc(width*.5,height*.5,210+i*62,0,Math.PI*2);ctx.stroke()}
+    ctx.globalAlpha=.82;ctx.fillStyle="#080d1a";ctx.strokeStyle=theme.accent;ctx.lineWidth=12;ctx.lineJoin="round";
+    ctx.beginPath();ctx.moveTo(365,430);ctx.lineTo(320,230);ctx.lineTo(485,340);ctx.quadraticCurveTo(600,285,715,340);ctx.lineTo(880,230);ctx.lineTo(835,430);ctx.quadraticCurveTo(905,610,790,740);ctx.quadraticCurveTo(600,850,410,740);ctx.quadraticCurveTo(295,610,365,430);ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.fillStyle=theme.accent;ctx.shadowColor=theme.accent;ctx.shadowBlur=26;
+    ctx.beginPath();ctx.moveTo(430,500);ctx.lineTo(540,520);ctx.lineTo(485,570);ctx.closePath();ctx.fill();
+    ctx.beginPath();ctx.moveTo(660,520);ctx.lineTo(770,500);ctx.lineTo(715,570);ctx.closePath();ctx.fill();
+    ctx.shadowBlur=0;ctx.fillStyle=theme.secondary;ctx.beginPath();ctx.moveTo(576,605);ctx.lineTo(624,605);ctx.lineTo(600,628);ctx.closePath();ctx.fill();
+    ctx.strokeStyle=theme.accent;ctx.lineWidth=5;ctx.globalAlpha=.65;
+    for(let i=0;i<3;i++){ctx.beginPath();ctx.moveTo(390,610+i*22);ctx.lineTo(270,580+i*38);ctx.stroke();ctx.beginPath();ctx.moveTo(810,610+i*22);ctx.lineTo(930,580+i*38);ctx.stroke()}
+    ctx.globalAlpha=.13;ctx.fillStyle=theme.accent;ctx.font='900 170px Impact, "Arial Black", sans-serif';ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("猫",600,600);
+  }else{
+    ctx.globalAlpha=.3;ctx.strokeStyle=theme.secondary;ctx.lineWidth=7;
+    for(let i=0;i<5;i++){
+      ctx.beginPath();ctx.arc(width*.5,height*.51,130+i*85,0,Math.PI*2);ctx.stroke();
+    }
+    ctx.globalAlpha=.10;ctx.fillStyle=theme.accent;ctx.font='900 330px Impact, "Arial Black", sans-serif';
+    ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("ОКАК",width/2,height/2+10);
   }
-  ctx.globalAlpha=.10;ctx.fillStyle=theme.accent;ctx.font='900 330px Impact, "Arial Black", sans-serif';
-  ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("ОКАК",width/2,height/2+10);
   ctx.restore();
 }
 function drawMemeImageCover(ctx,image,width,height){
@@ -686,6 +701,53 @@ if(downloadMemePngButton)downloadMemePngButton.addEventListener("click",()=>{
   }catch(error){setMemeStudioStatus("Браузер не смог создать файл PNG.");showToast("Не удалось экспортировать PNG")}
 });
 renderMemeStudio();
+
+/* Cyber Cat 2K25 v1.6 — ready-made meme gallery */
+const memeGallery=$("#meme-gallery-grid");
+const memeGalleryFilters=$(".meme-gallery-filter");
+const memeGalleryPresets={
+  "okak-control":{theme:"cyber",category:"okak",top:"ВСЁ ПОД КОНТРОЛЕМ",bottom:"КОНТРОЛЬ НЕ МОЙ. ОКАК."},
+  "cyber-cat":{theme:"cat",category:"cat",top:"КОГДА ЗАШЁЛ НА МИНУТУ",bottom:"А УЖЕ 3 ЧАСА НОЧИ"},
+  "plot-twist":{theme:"glitch",category:"okak",top:"Я ДУМАЛ, ЧТО ВСЁ",bottom:"НО ТУТ ПОВОРОТ. ОКАК."},
+  "tech-chaos":{theme:"acid",category:"life",top:"ПЕРЕЗАГРУЗИЛ РОУТЕР",bottom:"ОН ПЕРЕЗАГРУЗИЛ МЕНЯ"},
+  "synthwave-plans":{theme:"sunset",category:"life",top:"ПЛАН НА ВЕЧЕР",bottom:"СЮЖЕТ ВНЕС ПРАВКИ"},
+  "acid-cat":{theme:"cat",category:"cat",top:"КОТ В СИСТЕМЕ",bottom:"СИСТЕМА В ПАНИКЕ"}
+};
+function selectMemeGalleryPreset(id){
+  const preset=memeGalleryPresets[id];
+  if(!preset)return;
+  if(memeStudioImageUrl)URL.revokeObjectURL(memeStudioImageUrl);
+  memeStudioImageUrl="";memeStudioImage=null;
+  if(memeImageUpload)memeImageUpload.value="";
+  if(memeTemplateSelect)memeTemplateSelect.value=preset.theme;
+  if(memeImageTopText)memeImageTopText.value=preset.top;
+  if(memeImageBottomText)memeImageBottomText.value=preset.bottom;
+  if(memeGallery){
+    $(".meme-gallery-card",memeGallery).forEach(card=>{
+      const selected=card.dataset.galleryPreset===id;
+      card.classList.toggle("selected",selected);
+      card.setAttribute("aria-pressed",String(selected));
+    });
+  }
+  renderMemeStudio();
+  setMemeStudioStatus("Шаблон «"+id+"» выбран. Можешь поменять надписи и скачать свой PNG.");
+  showToast("Шаблон загружен в Meme Studio");
+}
+if(memeGallery)memeGallery.addEventListener("click",event=>{
+  const card=event.target.closest("button[data-gallery-preset]");
+  if(card)selectMemeGalleryPreset(card.dataset.galleryPreset);
+});
+memeGalleryFilters.forEach(filter=>filter.addEventListener("click",()=>{
+  const category=filter.dataset.galleryFilter||"all";
+  memeGalleryFilters.forEach(button=>{
+    const selected=button===filter;
+    button.classList.toggle("active",selected);
+    button.setAttribute("aria-pressed",String(selected));
+  });
+  $(".meme-gallery-card",memeGallery).forEach(card=>{
+    card.hidden=category!=="all"&&card.dataset.galleryCategory!==category;
+  });
+}));
 
 const year=$("#year");if(year)year.textContent=String(new Date().getFullYear());setMotion(motionEnabled);
 })();
