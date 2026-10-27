@@ -7,7 +7,7 @@
 <title>Cyber Cat 2K25 — Окак в цифровой вселенной</title><link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=1.5.1"><script src="script.js?v=1.5.1" defer></script>
+<link rel="stylesheet" href="style.css?v=1.6.0"><script src="script.js?v=1.6.0" defer></script>
 </head>
 <body>
 <a class="skip-link" href="#main">Перейти к содержимому</a><div class="ambient-grid" aria-hidden="true"></div><canvas id="particle-canvas" aria-hidden="true"></canvas><div class="scanline" aria-hidden="true"></div>
@@ -94,6 +94,41 @@
     <div><p class="eyebrow">EXPERIMENT / 002</p><h3 id="meme-studio-title">MEME <span class="gradient-text">STUDIO.</span></h3></div>
     <p>Собери собственную мем-картинку. Всё рисуется прямо в браузере — исходные изображения не загружаются на сервер.</p>
   </div>
+  <section class="meme-template-gallery" aria-labelledby="meme-template-gallery-title">
+    <div class="meme-gallery-heading"><div><span class="generator-stamp">QUICK START / 06 PRESETS</span><h4 id="meme-template-gallery-title">ГАЛЕРЕЯ <span class="gradient-text">ШАБЛОНОВ.</span></h4></div><p>Выбирай готовый сюжет — фон и надписи сразу подставятся в редактор. Потом меняй всё под себя.</p></div>
+    <div class="meme-gallery-filters" role="group" aria-label="Фильтр шаблонов">
+      <button class="meme-gallery-filter active" type="button" data-gallery-filter="all" aria-pressed="true">Все</button>
+      <button class="meme-gallery-filter" type="button" data-gallery-filter="cat" aria-pressed="false">Коты</button>
+      <button class="meme-gallery-filter" type="button" data-gallery-filter="okak" aria-pressed="false">Окак</button>
+      <button class="meme-gallery-filter" type="button" data-gallery-filter="life" aria-pressed="false">Жиза</button>
+    </div>
+    <div class="meme-gallery-grid" id="meme-gallery-grid">
+      <button class="meme-gallery-card selected" type="button" data-gallery-preset="okak-control" data-gallery-category="okak" aria-pressed="true">
+        <span class="meme-gallery-art art-cyber"><span class="art-chip">ОКАК</span><span class="art-top">ВСЁ ПОД КОНТРОЛЕМ</span><span class="art-symbol">◉</span><span class="art-bottom">КОНТРОЛЬ НЕ МОЙ</span></span>
+        <span class="meme-gallery-card-footer"><span><strong>Окак, всё нормально</strong><small>Cyber Grid · спокойствие до сюжета</small></span><span class="meme-gallery-choose">ВЫБРАТЬ ↗</span></span>
+      </button>
+      <button class="meme-gallery-card" type="button" data-gallery-preset="cyber-cat" data-gallery-category="cat" aria-pressed="false">
+        <span class="meme-gallery-art art-cat"><span class="art-chip">CAT_025</span><span class="art-top">КОГДА ЗАШЁЛ НА МИНУТУ</span><span class="art-cat-face"><i></i><b></b><em></em></span><span class="art-bottom">А УЖЕ 3 ЧАСА НОЧИ</span></span>
+        <span class="meme-gallery-card-footer"><span><strong>Киберкот онлайн</strong><small>Cyber Cat · кот против сна</small></span><span class="meme-gallery-choose">ВЫБРАТЬ ↗</span></span>
+      </button>
+      <button class="meme-gallery-card" type="button" data-gallery-preset="plot-twist" data-gallery-category="okak" aria-pressed="false">
+        <span class="meme-gallery-art art-glitch"><span class="art-chip">GLITCH / 01</span><span class="art-top">Я ДУМАЛ, ЧТО ВСЁ</span><span class="art-symbol">?!</span><span class="art-bottom">НО ТУТ ПОВОРОТ</span></span>
+        <span class="meme-gallery-card-footer"><span><strong>Сюжетный поворот</strong><small>Glitch · уровень сложности: окак</small></span><span class="meme-gallery-choose">ВЫБРАТЬ ↗</span></span>
+      </button>
+      <button class="meme-gallery-card" type="button" data-gallery-preset="tech-chaos" data-gallery-category="life" aria-pressed="false">
+        <span class="meme-gallery-art art-acid"><span class="art-chip">SYSTEM ALERT</span><span class="art-top">ПЕРЕЗАГРУЗИЛ РОУТЕР</span><span class="art-symbol">⌘</span><span class="art-bottom">ОН ПЕРЕЗАГРУЗИЛ МЕНЯ</span></span>
+        <span class="meme-gallery-card-footer"><span><strong>Техника чудит</strong><small>Acid Cat · IT-сюрприз</small></span><span class="meme-gallery-choose">ВЫБРАТЬ ↗</span></span>
+      </button>
+      <button class="meme-gallery-card" type="button" data-gallery-preset="synthwave-plans" data-gallery-category="life" aria-pressed="false">
+        <span class="meme-gallery-art art-sunset"><span class="art-chip">SYNTHWAVE</span><span class="art-top">ПЛАН НА ВЕЧЕР</span><span class="art-sun"></span><span class="art-bottom">СЮЖЕТ ВНЕС ПРАВКИ</span></span>
+        <span class="meme-gallery-card-footer"><span><strong>План на вечер</strong><small>Synthwave · реальность изменила план</small></span><span class="meme-gallery-choose">ВЫБРАТЬ ↗</span></span>
+      </button>
+      <button class="meme-gallery-card" type="button" data-gallery-preset="acid-cat" data-gallery-category="cat" aria-pressed="false">
+        <span class="meme-gallery-art art-lime"><span class="art-chip">ACID / CAT</span><span class="art-top">КОТ В СИСТЕМЕ</span><span class="art-symbol">猫</span><span class="art-bottom">СИСТЕМА В ПАНИКЕ</span></span>
+        <span class="meme-gallery-card-footer"><span><strong>Кот в системе</strong><small>Acid Cat · кошачий апдейт</small></span><span class="meme-gallery-choose">ВЫБРАТЬ ↗</span></span>
+      </button>
+    </div>
+  </section>
   <div class="meme-studio-layout">
     <form class="meme-studio-controls" id="meme-studio-form">
       <div class="meme-studio-control">
@@ -102,7 +137,7 @@
           <option value="cyber">Cyber Grid · бирюзовый</option>
           <option value="sunset">Synthwave · закат</option>
           <option value="glitch">Glitch · фиолетовый</option>
-          <option value="acid">Acid Cat · лайм</option>
+          <option value="acid">Acid Cat · лайм</option><option value="cat">Cyber Cat · кот</option>
         </select>
       </div>
       <div class="meme-studio-control">
