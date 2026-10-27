@@ -164,7 +164,7 @@ jobs:
             'gallery includes at least six ready-made templates');
           check(js.includes('memeGalleryPresets') && js.includes('selectMemeGalleryPreset'),
             'gallery presets can be applied to the meme editor');
-          check(js.includes('data-gallery-filter') && js.includes('memeGalleryFilters.forEach'),
+          check(html.includes('data-gallery-filter') && js.includes('memeGalleryFilters.forEach'),
             'gallery category filters are wired to the interface');
           check(js.includes('motif==="cat"') && js.includes('motif:"cat"'),
             'cyber cat background motif is implemented');
