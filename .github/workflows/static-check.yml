@@ -9,6 +9,7 @@ on:
       - cyber-cat-2k25
       - feature/cyber-cat-2k25-v2
       - feature/cyber-cat-2k25-v1.1
+      - feature/cyber-cat-2k25-v1.2
 
 permissions:
   contents: read
@@ -98,6 +99,17 @@ jobs:
             'sharing uses the native share sheet when available');
           check(/copyToClipboard/.test(js),
             'copy/share includes a clipboard compatibility fallback');
+
+          const libraryIds = ['favorite-meme', 'meme-history-list', 'meme-favorites-list',
+            'meme-history-count', 'meme-favorites-count', 'clear-meme-history'];
+          check(libraryIds.every((id) => idSet.has(id)),
+            'reaction history and favourites have all expected controls');
+          check(/localStorage\\.getItem/.test(js) && /localStorage\\.setItem/.test(js),
+            'reaction history and favourites persist locally');
+          check(/MAX_MEME_HISTORY=8/.test(js) && /MAX_MEME_FAVORITES=20/.test(js),
+            'saved reaction lists have explicit size limits');
+          check(/data-reaction-action/.test(js) && /restoreReaction/.test(js),
+            'saved reactions can be restored from the lists');
 
           if (failed) process.exit(1);
           NODE
