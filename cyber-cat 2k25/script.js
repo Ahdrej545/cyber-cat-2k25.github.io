@@ -1146,7 +1146,7 @@ async function readSavedMemeGalleryZip(file){
     if(position+recordLength>directory.length)throw new Error("Запись ZIP выходит за границы списка файлов");
     if((flags&1)!==0||method!==0||compressedSize!==uncompressedSize||startDisk!==0)throw new Error("Поддерживаются только обычные ZIP-резервные копии Cyber Cat без сжатия");
     const name=decoder.decode(directory.subarray(position+46,position+46+nameLength));
-    if(name!=="manifest.json"&&!/^memes\\/meme-\\d{3}\\.png$/.test(name))throw new Error("В ZIP найден неизвестный файл: "+name);
+    if(name!=="manifest.json"&&!/^memes\/meme-\d{3}\.png$/.test(name))throw new Error("В ZIP найден неизвестный файл: "+name);
     if(seenNames.has(name))throw new Error("В ZIP повторяется имя файла");
     if(name==="manifest.json"&&uncompressedSize>256*1024)throw new Error("Манифест ZIP слишком большой");
     if(name!=="manifest.json"&&uncompressedSize>MAX_SAVED_MEME_SIZE)throw new Error("Одна из картинок превышает 12 МБ");
@@ -1185,7 +1185,7 @@ async function readSavedMemeGalleryZip(file){
   const referenced=new Set(["manifest.json"]);
   const restored=[];
   for(const meta of manifest.memes){
-    if(!meta||typeof meta.file!=="string"||!/^memes\\/meme-\\d{3}\\.png$/.test(meta.file)||referenced.has(meta.file))throw new Error("Манифест содержит некорректное имя картинки");
+    if(!meta||typeof meta.file!=="string"||!/^memes\/meme-\d{3}\.png$/.test(meta.file)||referenced.has(meta.file))throw new Error("Манифест содержит некорректное имя картинки");
     const blob=archiveFiles.get(meta.file);
     if(!blob||blob.size>MAX_SAVED_MEME_SIZE||Number(meta.size)!==blob.size)throw new Error("Картинка отсутствует или имеет неверный размер: "+meta.file);
     if(!Number.isFinite(Number(meta.createdAt))||typeof meta.topText!=="string"||meta.topText.length>100||typeof meta.bottomText!=="string"||meta.bottomText.length>140||typeof meta.theme!=="string"||meta.theme.length>40)throw new Error("Манифест содержит некорректные данные мем-картинки");
@@ -1257,7 +1257,7 @@ if(importSavedMemesZipInput)importSavedMemesZipInput.addEventListener("change",a
     const records=await readSavedMemeGalleryZip(file);
     const existing=await getSavedMemeRecords();
     const approved=window.confirm(
-      "Восстановить "+records.length+" мем(ов) из ZIP?\\n\\nТекущая галерея"+(existing.length?" ("+existing.length+" мемов)":"")+" будет заменена. Отмена ничего не изменит."
+      "Восстановить "+records.length+" мем(ов) из ZIP?\n\nТекущая галерея"+(existing.length?" ("+existing.length+" мемов)":"")+" будет заменена. Отмена ничего не изменит."
     );
     if(!approved){
       setSavedMemeGalleryStatus("Импорт отменён. Текущая галерея не изменилась.");
