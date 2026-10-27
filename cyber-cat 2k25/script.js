@@ -522,6 +522,7 @@ const memeImageBottomText=$("#meme-image-bottom-text");
 const memeImageCharCount=$("#meme-image-char-count");
 const memeStudioStatus=$("#meme-studio-status");
 const downloadMemePngButton=$("#download-meme-png");
+const shareMemePngButton=$("#share-meme-png");
 const resetMemeImageButton=$("#reset-meme-image");
 const useCurrentReactionButton=$("#use-current-reaction");
 const MEME_IMAGE_MAX_FILE_SIZE=8*1024*1024;
@@ -643,6 +644,37 @@ function renderMemeStudio(){
   if(memeImageCharCount)memeImageCharCount.textContent=String(memeImageBottomText?.value.length||0)+" / 140";
 }
 function setMemeStudioStatus(message){if(memeStudioStatus)memeStudioStatus.textContent=message}
+function downloadPngBlob(blob,filename){
+  const url=URL.createObjectURL(blob),link=document.createElement("a");
+  link.href=url;link.download=filename;
+  document.body.appendChild(link);link.click();link.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+async function sharePngBlobOrDownload(blob,filename,caption=""){
+  if(typeof File==="function"&&typeof navigator.share==="function"){
+    try{
+      const file=new File([blob],filename,{type:"image/png",lastModified:Date.now()});
+      const canShareFiles=typeof navigator.canShare!=="function"||navigator.canShare({files:[file]});
+      if(canShareFiles){
+        try{
+          await navigator.share({
+            files:[file],
+            title:"Мем из Cyber Cat 2K25",
+            text:caption?"Создан в Cyber Cat 2K25: "+caption:"Создан в Cyber Cat 2K25"
+          });
+          return "shared";
+        }catch(error){
+          if(error&&error.name==="AbortError")return "cancelled";
+        }
+      }
+    }catch(error){
+      /* File sharing is unavailable or blocked; use the regular download below. */
+    }
+  }
+  downloadPngBlob(blob,filename);
+  return "downloaded";
+}
+
 if(memeTemplateSelect)memeTemplateSelect.addEventListener("change",renderMemeStudio);
 if(memeImageTopText)memeImageTopText.addEventListener("input",renderMemeStudio);
 if(memeImageBottomText)memeImageBottomText.addEventListener("input",renderMemeStudio);
@@ -700,6 +732,38 @@ if(downloadMemePngButton)downloadMemePngButton.addEventListener("click",()=>{
     },"image/png");
   }catch(error){setMemeStudioStatus("Браузер не смог создать файл PNG.");showToast("Не удалось экспортировать PNG")}
 });
+if(shareMemePngButton)shareMemePngButton.addEventListener("click",async()=>{
+  if(!memeStudioCanvas)return;
+  shareMemePngButton.disabled=true;
+  const originalText=shareMemePngButton.textContent;
+  shareMemePngButton.textContent="Готовлю PNG…";
+  try{
+    const blob=await new Promise((resolve,reject)=>{
+      try{
+        memeStudioCanvas.toBlob(result=>result?resolve(result):reject(new Error("Браузер не создал PNG")),"image/png");
+      }catch(error){reject(error)}
+    });
+    const filename="cyber-cat-meme-"+new Date().toISOString().slice(0,10)+".png";
+    const caption=[memeImageTopText?.value?.trim(),memeImageBottomText?.value?.trim()].filter(Boolean).join(" / ");
+    const result=await sharePngBlobOrDownload(blob,filename,caption);
+    if(result==="shared"){
+      setMemeStudioStatus("PNG передан в системное меню отправки.");
+      showToast("Выбери приложение для отправки мема");
+    }else if(result==="cancelled"){
+      setMemeStudioStatus("Отправка отменена. Картинка осталась в редакторе.");
+    }else{
+      setMemeStudioStatus("Этот браузер не поддерживает отправку PNG напрямую — файл скачан.");
+      showToast("PNG скачан: можно прикрепить его в чате");
+    }
+  }catch(error){
+    setMemeStudioStatus("Не удалось подготовить PNG для отправки. Попробуй скачать его обычной кнопкой.");
+    showToast("Не удалось подготовить PNG");
+  }finally{
+    shareMemePngButton.disabled=false;
+    shareMemePngButton.textContent=originalText;
+  }
+});
+
 renderMemeStudio();
 
 /* Cyber Cat 2K25 v1.6 — ready-made meme gallery */
@@ -888,6 +952,7 @@ function renderSavedMemeRecords(records){
     actions.className="saved-meme-card-actions";
     actions.append(
       createSavedMemeButton("Скачать PNG ↓","download",record.id),
+      createSavedMemeButton("Поделиться ↗","share",record.id),
       createSavedMemeButton("Удалить ×","delete",record.id)
     );
     content.append(caption,meta,actions);
@@ -960,16 +1025,27 @@ if(savedMemeGalleryGrid)savedMemeGalleryGrid.addEventListener("click",async even
       showToast("Мем удалён");
       return;
     }
-    if(button.dataset.savedMemeAction==="download"){
+    if(button.dataset.savedMemeAction==="download"||button.dataset.savedMemeAction==="share"){
       const records=await getSavedMemeRecords();
       const record=records.find(item=>Number(item.id)===id);
       if(!record||!(record.blob instanceof Blob))throw new Error("Мем не найден");
-      const url=URL.createObjectURL(record.blob);
-      const link=document.createElement("a");
-      link.href=url;link.download="cyber-cat-saved-meme-"+new Date(Number(record.createdAt)||Date.now()).toISOString().slice(0,10)+".png";
-      document.body.appendChild(link);link.click();link.remove();
-      setTimeout(()=>URL.revokeObjectURL(url),1500);
-      showToast("PNG скачан из галереи");
+      const filename="cyber-cat-saved-meme-"+new Date(Number(record.createdAt)||Date.now()).toISOString().slice(0,10)+".png";
+      if(button.dataset.savedMemeAction==="download"){
+        downloadPngBlob(record.blob,filename);
+        showToast("PNG скачан из галереи");
+        return;
+      }
+      const caption=[record.topText,record.bottomText].filter(Boolean).join(" / ");
+      const result=await sharePngBlobOrDownload(record.blob,filename,caption);
+      if(result==="shared"){
+        setSavedMemeGalleryStatus("Мем передан в системное меню отправки.");
+        showToast("Выбери приложение для отправки мема");
+      }else if(result==="cancelled"){
+        setSavedMemeGalleryStatus("Отправка отменена. Мем остался в галерее.");
+      }else{
+        setSavedMemeGalleryStatus("Прямая отправка недоступна — PNG скачан.");
+        showToast("PNG скачан из галереи");
+      }
     }
   }catch(error){
     setSavedMemeGalleryStatus("Не удалось выполнить действие. Попробуй ещё раз.");
