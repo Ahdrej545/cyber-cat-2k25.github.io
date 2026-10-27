@@ -100,7 +100,7 @@ body.motion-off #particle-canvas,body.motion-off .scanline{display:none}body.mot
 .collection-transfer-actions .button,.collection-import-control .button{display:inline-flex;align-items:center;justify-content:center;min-height:43px;padding:10px 14px;font-size:9px;cursor:pointer}
 .collection-import-control{position:relative;display:inline-flex}
 .collection-import-control input{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;clip-path:inset(50%)}
-.collection-import-control input:focus-visible+.button,.collection-import-control input:focus-visible~.button{outline:2px solid var(--cyan);outline-offset:3px}
+.collection-import-control:focus-within .button{outline:2px solid var(--cyan);outline-offset:3px}
 .collection-transfer-status{margin:13px 0 0;color:#7e8ca7;font-size:13px;line-height:1.5}
 @media(max-width:800px){.collection-transfer-heading{flex-direction:column;gap:9px}.collection-transfer-heading>p{max-width:none}}
 @media(max-width:520px){.collection-transfer{padding:15px;margin:18px 0}.collection-transfer-actions{display:grid;grid-template-columns:1fr}.collection-transfer-actions .button,.collection-import-control,.collection-import-control .button{width:100%;box-sizing:border-box}.collection-transfer-status{font-size:12px}}
