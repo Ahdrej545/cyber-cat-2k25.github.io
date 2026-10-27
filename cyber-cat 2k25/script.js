@@ -1352,7 +1352,7 @@ if(importSavedMemesZipInput)importSavedMemesZipInput.addEventListener("change",a
 });
 
 
-/* Cyber Cat 2K25 v2.0.1 — PWA install prompt and reliable offline status */
+/* Cyber Cat 2K25 v2.0.2 — PWA cache compatibility and install help */
 const installAppButton=$("#install-app");
 const pwaStatus=$("#pwa-status");
 let deferredPwaInstallPrompt=null;
@@ -1364,8 +1364,11 @@ function getManualPwaInstallHelp(){
   if(/iphone|ipad|ipod/i.test(ua)){
     return "На iPhone/iPad: открой сайт в Safari, нажми «Поделиться» и выбери «На экран Домой».";
   }
+  if(/yabrowser|yaapp/i.test(ua)){
+    return "В Яндекс Браузере: меню (⋮) → «Добавить на главный экран». Если после нажатия не появляется подтверждение и ярлык не создаётся, перезапусти Яндекс Браузер и попробуй снова. Это системное действие выполняет сам браузер, а не сайт.";
+  }
   if(/android/i.test(ua)){
-    return "На Android: открой меню браузера (⋮) и выбери «Установить приложение» или «Добавить на главный экран». Если пункта нет, попробуй этот адрес в Google Chrome; оставь сайт открытым примерно на 30 секунд и обнови страницу.";
+    return "В Chrome на Android открой меню (⋮) и выбери «Установить приложение» или «Добавить на главный экран» — название зависит от версии. Если пункта нет, нажми на любой элемент страницы, оставь её открытой не менее 30 секунд, затем обнови и проверь меню снова.";
   }
   return "На компьютере в Chrome или Edge открой меню браузера и выбери «Установить Cyber Cat» / «Установить приложение». На других браузерах название пункта может отличаться.";
 }
