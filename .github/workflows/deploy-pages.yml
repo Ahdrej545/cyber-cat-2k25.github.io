@@ -28,7 +28,7 @@ jobs:
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v6
 
-      - name: Prepare site and legacy URL alias
+      - name: Prepare site and compatibility URLs
         shell: bash
         run: |
           set -euo pipefail
@@ -41,23 +41,34 @@ jobs:
           test -f "$SOURCE/favicon.svg"
           test -f "$SOURCE/assets/sounds/cat-roar.mp3"
 
-          # Publish the current canonical URL at the project root.
+          # Publish the canonical URL at the project root.
           mkdir -p "$OUTPUT"
           cp -R "$SOURCE/." "$OUTPUT/"
 
-          # Keep the previous URL working too, for bookmarks and older links.
+          # Preserve the old path with a literal space.
           mkdir -p "$OUTPUT/cyber-cat 2k25"
           cp -R "$SOURCE/." "$OUTPUT/cyber-cat 2k25/"
 
-          # Tell Pages not to run Jekyll over these static files.
+          # Also preserve a literal percent-encoded path for URL routers
+          # that resolve "%20" without decoding it before file lookup.
+          mkdir -p "$OUTPUT/cyber-cat%202k25"
+          cp -R "$SOURCE/." "$OUTPUT/cyber-cat%202k25/"
+
+          # Tell Pages not to run Jekyll over the static output.
           touch "$OUTPUT/.nojekyll"
           touch "$OUTPUT/cyber-cat 2k25/.nojekyll"
+          touch "$OUTPUT/cyber-cat%202k25/.nojekyll"
 
-          # Fail the build if either published entry point is incomplete.
+          # Fail the build unless all entry points and local assets exist.
           test -f "$OUTPUT/index.html"
+          test -f "$OUTPUT/style.css"
+          test -f "$OUTPUT/script.js"
           test -f "$OUTPUT/cyber-cat 2k25/index.html"
           test -f "$OUTPUT/cyber-cat 2k25/style.css"
           test -f "$OUTPUT/cyber-cat 2k25/script.js"
+          test -f "$OUTPUT/cyber-cat%202k25/index.html"
+          test -f "$OUTPUT/cyber-cat%202k25/style.css"
+          test -f "$OUTPUT/cyber-cat%202k25/script.js"
 
       - name: Upload site artifact
         uses: actions/upload-pages-artifact@v5
