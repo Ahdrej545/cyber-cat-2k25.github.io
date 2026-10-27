@@ -104,3 +104,34 @@ body.motion-off #particle-canvas,body.motion-off .scanline{display:none}body.mot
 .collection-transfer-status{margin:13px 0 0;color:#7e8ca7;font-size:13px;line-height:1.5}
 @media(max-width:800px){.collection-transfer-heading{flex-direction:column;gap:9px}.collection-transfer-heading>p{max-width:none}}
 @media(max-width:520px){.collection-transfer{padding:15px;margin:18px 0}.collection-transfer-actions{display:grid;grid-template-columns:1fr}.collection-transfer-actions .button,.collection-import-control,.collection-import-control .button{width:100%;box-sizing:border-box}.collection-transfer-status{font-size:12px}}
+
+/* Cyber Cat 2K25 v1.5 — canvas meme studio */
+.meme-studio{position:relative;z-index:1;width:min(1100px,calc(100% - 48px));margin:0 auto 70px;padding:26px;border:1px solid rgba(77,245,232,.24);background:linear-gradient(145deg,rgba(14,22,38,.96),rgba(8,13,24,.98));box-shadow:0 18px 55px #0003}
+.meme-studio-header{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:24px}
+.meme-studio-header .eyebrow{margin:0 0 9px}
+.meme-studio-header h3{font:700 clamp(23px,3vw,33px)/1.2 var(--font-display);letter-spacing:-.04em;margin:0}
+.meme-studio-header>p{max-width:440px;margin:0;color:var(--muted);font-size:16px;line-height:1.5}
+.meme-studio-layout{display:grid;grid-template-columns:minmax(260px,.8fr) minmax(0,1.2fr);gap:24px;align-items:start}
+.meme-studio-controls{display:flex;flex-direction:column;gap:18px;min-width:0}
+.meme-studio-control{display:grid;gap:8px;min-width:0}
+.meme-studio-control>label{font:10px var(--font-display);letter-spacing:.09em;color:#a9b7d0}
+.meme-studio-control input[type=text],.meme-studio-control textarea,.meme-studio-control select,.meme-studio-control input[type=file]{box-sizing:border-box;width:100%;max-width:100%;min-height:45px;padding:11px 12px;border:1px solid #34445e;border-radius:0;background:#090f1b;color:var(--text);font:15px/1.45 var(--font-body)}
+.meme-studio-control textarea{resize:vertical;min-height:82px}
+.meme-studio-control input[type=file]{font-size:12px;color:#aebbd1;padding:8px}
+.meme-studio-control input:focus-visible,.meme-studio-control textarea:focus-visible,.meme-studio-control select:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.meme-studio-hint{margin:0;color:#71809a;font-size:12px;line-height:1.45}
+.meme-studio-field-footer{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.meme-studio-field-footer>span{flex:0 0 auto;color:#71809a;font:8px var(--font-display)}
+.meme-studio-inline-button{padding:4px 0;border:0;background:transparent;color:var(--cyan);font:9px var(--font-display);text-align:left;cursor:pointer}
+.meme-studio-inline-button:hover{text-decoration:underline}
+.meme-studio-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:2px}
+.meme-studio-actions .button{width:100%;min-width:0;padding-inline:10px;min-height:46px}
+.meme-studio-status{margin:0;padding:12px;border-left:2px solid var(--cyan);background:#4df5e808;color:#8c9bb5;font-size:13px;line-height:1.5}
+.meme-studio-preview{min-width:0;padding:12px;border:1px solid #28364c;background:#070c15}
+.meme-studio-preview-header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;color:#8e9db8;font:8px var(--font-display);letter-spacing:.09em}
+.meme-studio-preview-header span:first-child{display:flex;align-items:center;gap:7px;color:var(--cyan)}
+.meme-studio-preview-header .live-dot{display:inline-block}
+#meme-image-canvas{display:block;width:100%;height:auto;aspect-ratio:1/1;background:#09101d;border:1px solid #27354b;object-fit:contain}
+.meme-studio-preview-note{margin:11px 2px 2px;color:#74829b;font-size:12px;line-height:1.45}
+@media(max-width:800px){.meme-studio{padding:20px}.meme-studio-header{align-items:flex-start;flex-direction:column;gap:12px}.meme-studio-header>p{max-width:none}.meme-studio-layout{grid-template-columns:1fr}.meme-studio-preview{order:-1}.meme-studio-preview{max-width:620px;width:100%;box-sizing:border-box;margin-inline:auto}}
+@media(max-width:520px){.meme-studio{width:calc(100% - 32px);padding:14px;margin-bottom:55px}.meme-studio-header h3{font-size:25px}.meme-studio-header>p{font-size:14px}.meme-studio-layout{gap:18px}.meme-studio-preview{padding:8px}.meme-studio-preview-header{font-size:7px}.meme-studio-control input[type=text],.meme-studio-control textarea,.meme-studio-control select{font-size:16px}.meme-studio-actions{grid-template-columns:1fr}.meme-studio-actions .button{min-height:46px}.meme-studio-inline-button{font-size:8px}}

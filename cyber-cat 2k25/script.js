@@ -512,5 +512,180 @@ if(importCollectionsInput)importCollectionsInput.addEventListener("change",async
 
 renderMemeCollections();
 
+/* Cyber Cat 2K25 v1.5 — local canvas meme studio */
+const memeStudioCanvas=$("#meme-image-canvas");
+const memeStudioContext=memeStudioCanvas?.getContext("2d");
+const memeTemplateSelect=$("#meme-template");
+const memeImageUpload=$("#meme-image-upload");
+const memeImageTopText=$("#meme-image-top-text");
+const memeImageBottomText=$("#meme-image-bottom-text");
+const memeImageCharCount=$("#meme-image-char-count");
+const memeStudioStatus=$("#meme-studio-status");
+const downloadMemePngButton=$("#download-meme-png");
+const resetMemeImageButton=$("#reset-meme-image");
+const useCurrentReactionButton=$("#use-current-reaction");
+const MEME_IMAGE_MAX_FILE_SIZE=8*1024*1024;
+let memeStudioImage=null;
+let memeStudioImageUrl="";
+const memeStudioThemes={
+  cyber:{top:"#061421",bottom:"#122b42",accent:"#4df5e8",secondary:"#a98bff"},
+  sunset:{top:"#200c35",bottom:"#f14d79",accent:"#ffca78",secondary:"#ff4ca5"},
+  glitch:{top:"#100923",bottom:"#39205f",accent:"#bca0ff",secondary:"#ff5fba"},
+  acid:{top:"#081b12",bottom:"#273d10",accent:"#d7ff65",secondary:"#4df5e8"}
+};
+function drawMemeBackground(ctx,width,height,theme){
+  const gradient=ctx.createLinearGradient(0,0,width,height);
+  gradient.addColorStop(0,theme.top);
+  gradient.addColorStop(1,theme.bottom);
+  ctx.fillStyle=gradient;ctx.fillRect(0,0,width,height);
+  ctx.save();
+  ctx.globalAlpha=.22;ctx.strokeStyle=theme.accent;ctx.lineWidth=2;
+  for(let x=0;x<=width;x+=48){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,height);ctx.stroke()}
+  for(let y=0;y<=height;y+=48){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(width,y);ctx.stroke()}
+  ctx.globalAlpha=.3;ctx.strokeStyle=theme.secondary;ctx.lineWidth=7;
+  for(let i=0;i<5;i++){
+    ctx.beginPath();ctx.arc(width*.5,height*.51,130+i*85,0,Math.PI*2);ctx.stroke();
+  }
+  ctx.globalAlpha=.10;ctx.fillStyle=theme.accent;ctx.font='900 330px Impact, "Arial Black", sans-serif';
+  ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("ОКАК",width/2,height/2+10);
+  ctx.restore();
+}
+function drawMemeImageCover(ctx,image,width,height){
+  const iw=image.naturalWidth||image.width,ih=image.naturalHeight||image.height;
+  if(!iw||!ih)return;
+  const scale=Math.max(width/iw,height/ih),sw=width/scale,sh=height/scale;
+  const sx=(iw-sw)/2,sy=(ih-sh)/2;
+  ctx.drawImage(image,sx,sy,sw,sh,0,0,width,height);
+  const shade=ctx.createLinearGradient(0,0,0,height);
+  shade.addColorStop(0,"rgba(2,6,16,.68)");
+  shade.addColorStop(.38,"rgba(2,6,16,.05)");
+  shade.addColorStop(.62,"rgba(2,6,16,.05)");
+  shade.addColorStop(1,"rgba(2,6,16,.72)");
+  ctx.fillStyle=shade;ctx.fillRect(0,0,width,height);
+}
+function wrapMemeCaption(ctx,text,maxWidth,maxLines){
+  const words=text.trim().split(/\s+/).filter(Boolean);
+  const lines=[];let line="";
+  for(const word of words){
+    const candidate=line?line+" "+word:word;
+    if(ctx.measureText(candidate).width>maxWidth&&line){
+      lines.push(line);line=word;
+      if(lines.length===maxLines-1)break;
+    }else line=candidate;
+  }
+  if(line&&lines.length<maxLines)lines.push(line);
+  if(lines.length===maxLines&&words.join(" ")!==lines.join(" ")){
+    let final=lines[lines.length-1];
+    while(final.length>1&&ctx.measureText(final+"…").width>maxWidth)final=final.slice(0,-1);
+    lines[lines.length-1]=final+"…";
+  }
+  return lines;
+}
+function drawMemeCaption(ctx,text,bandY,bandHeight,alignment,accent){
+  const clean=(text||"").trim();
+  if(!clean)return;
+  const width=memeStudioCanvas.width,maxWidth=width-100;
+  let fontSize=76,lines=[];
+  do{
+    ctx.font='900 '+fontSize+'px Impact, "Arial Black", sans-serif';
+    lines=wrapMemeCaption(ctx,clean.toLocaleUpperCase(),maxWidth,3);
+    if(lines.length*fontSize*1.04<=bandHeight-42&&lines.every(line=>ctx.measureText(line).width<=maxWidth))break;
+    fontSize-=3;
+  }while(fontSize>32);
+  ctx.save();
+  ctx.textAlign="center";ctx.textBaseline="middle";ctx.lineJoin="round";
+  ctx.font='900 '+fontSize+'px Impact, "Arial Black", sans-serif';
+  const lineHeight=fontSize*1.06;
+  const startY=alignment==="top"?bandY+bandHeight/2-(lines.length-1)*lineHeight/2:bandY+bandHeight/2-(lines.length-1)*lineHeight/2;
+  lines.forEach((line,index)=>{
+    const y=startY+index*lineHeight;
+    ctx.shadowColor=accent;ctx.shadowBlur=16;ctx.lineWidth=9;ctx.strokeStyle="rgba(3,7,18,.94)";ctx.strokeText(line,width/2,y,maxWidth);
+    ctx.shadowBlur=10;ctx.lineWidth=3;ctx.strokeStyle=accent;ctx.strokeText(line,width/2,y,maxWidth);
+    ctx.shadowBlur=0;ctx.fillStyle="#ffffff";ctx.fillText(line,width/2,y,maxWidth);
+  });
+  ctx.restore();
+}
+function renderMemeStudio(){
+  if(!memeStudioCanvas||!memeStudioContext)return;
+  const ctx=memeStudioContext,width=memeStudioCanvas.width,height=memeStudioCanvas.height;
+  const theme=memeStudioThemes[memeTemplateSelect?.value]||memeStudioThemes.cyber;
+  ctx.clearRect(0,0,width,height);
+  if(memeStudioImage)drawMemeImageCover(ctx,memeStudioImage,width,height);
+  else drawMemeBackground(ctx,width,height,theme);
+  const topBand=ctx.createLinearGradient(0,0,0,280);
+  topBand.addColorStop(0,"rgba(2,6,16,.86)");topBand.addColorStop(1,"rgba(2,6,16,0)");
+  ctx.fillStyle=topBand;ctx.fillRect(0,0,width,285);
+  const bottomBand=ctx.createLinearGradient(0,height-330,0,height);
+  bottomBand.addColorStop(0,"rgba(2,6,16,0)");bottomBand.addColorStop(1,"rgba(2,6,16,.92)");
+  ctx.fillStyle=bottomBand;ctx.fillRect(0,height-330,width,330);
+  drawMemeCaption(ctx,memeImageTopText?.value||"",35,260,"top",theme.accent);
+  drawMemeCaption(ctx,memeImageBottomText?.value||"",height-300,240,"bottom",theme.secondary);
+  ctx.save();
+  ctx.font='600 22px "Arial", sans-serif';ctx.textAlign="right";ctx.textBaseline="bottom";
+  ctx.fillStyle=theme.accent;ctx.shadowColor="#030712";ctx.shadowBlur=5;
+  ctx.fillText("CYBER CAT 2K25",width-35,height-20);
+  ctx.restore();
+  if(memeImageCharCount)memeImageCharCount.textContent=String(memeImageBottomText?.value.length||0)+" / 140";
+}
+function setMemeStudioStatus(message){if(memeStudioStatus)memeStudioStatus.textContent=message}
+if(memeTemplateSelect)memeTemplateSelect.addEventListener("change",renderMemeStudio);
+if(memeImageTopText)memeImageTopText.addEventListener("input",renderMemeStudio);
+if(memeImageBottomText)memeImageBottomText.addEventListener("input",renderMemeStudio);
+if(memeImageUpload)memeImageUpload.addEventListener("change",()=>{
+  const file=memeImageUpload.files&&memeImageUpload.files[0];
+  if(!file)return;
+  if(!/^image\/(png|jpeg|webp|gif)$/.test(file.type)){
+    memeImageUpload.value="";setMemeStudioStatus("Формат не поддерживается. Выбери PNG, JPG, WebP или GIF.");
+    showToast("Неподдерживаемый формат изображения");return;
+  }
+  if(file.size>MEME_IMAGE_MAX_FILE_SIZE){
+    memeImageUpload.value="";setMemeStudioStatus("Файл больше 8 МБ. Выбери изображение меньшего размера.");
+    showToast("Изображение слишком большое");return;
+  }
+  const nextUrl=URL.createObjectURL(file),image=new Image();
+  image.onload=()=>{
+    if(memeStudioImageUrl)URL.revokeObjectURL(memeStudioImageUrl);
+    memeStudioImageUrl=nextUrl;memeStudioImage=image;
+    renderMemeStudio();
+    setMemeStudioStatus("Изображение добавлено. Оно обрабатывается локально и не отправляется на сервер.");
+  };
+  image.onerror=()=>{
+    URL.revokeObjectURL(nextUrl);setMemeStudioStatus("Не удалось прочитать изображение. Попробуй другой файл.");
+    showToast("Не удалось открыть изображение");
+  };
+  image.src=nextUrl;
+});
+if(useCurrentReactionButton)useCurrentReactionButton.addEventListener("click",()=>{
+  const current=memeResult?.textContent?.trim();
+  if(!current){setMemeStudioStatus("Сначала сгенерируй или выбери реакцию в блоке выше.");return}
+  if(memeImageBottomText)memeImageBottomText.value=current.slice(0,140);
+  renderMemeStudio();setMemeStudioStatus("Текущая реакция перенесена в нижнюю надпись.");
+  showToast("Реакция добавлена на мем-картинку");
+});
+if(resetMemeImageButton)resetMemeImageButton.addEventListener("click",()=>{
+  if(memeStudioImageUrl)URL.revokeObjectURL(memeStudioImageUrl);
+  memeStudioImageUrl="";memeStudioImage=null;
+  if(memeImageUpload)memeImageUpload.value="";
+  if(memeTemplateSelect)memeTemplateSelect.value="cyber";
+  if(memeImageTopText)memeImageTopText.value="КОГДА ВСЁ ИДЁТ ПО ПЛАНУ";
+  if(memeImageBottomText)memeImageBottomText.value="А ПОТОМ ПОЯВЛЯЕТСЯ ОН. ОКАК.";
+  renderMemeStudio();setMemeStudioStatus("Шаблон сброшен. Можно начинать заново.");
+});
+if(downloadMemePngButton)downloadMemePngButton.addEventListener("click",()=>{
+  if(!memeStudioCanvas)return;
+  try{
+    memeStudioCanvas.toBlob(blob=>{
+      if(!blob){setMemeStudioStatus("Не удалось создать PNG. Попробуй ещё раз.");showToast("PNG не создан");return}
+      const url=URL.createObjectURL(blob),link=document.createElement("a");
+      link.href=url;link.download="cyber-cat-meme-"+new Date().toISOString().slice(0,10)+".png";
+      document.body.appendChild(link);link.click();link.remove();
+      setTimeout(()=>URL.revokeObjectURL(url),1200);
+      setMemeStudioStatus("PNG скачан: 1200 × 1200 пикселей.");
+      showToast("Мем-картинка скачана в PNG");
+    },"image/png");
+  }catch(error){setMemeStudioStatus("Браузер не смог создать файл PNG.");showToast("Не удалось экспортировать PNG")}
+});
+renderMemeStudio();
+
 const year=$("#year");if(year)year.textContent=String(new Date().getFullYear());setMotion(motionEnabled);
 })();

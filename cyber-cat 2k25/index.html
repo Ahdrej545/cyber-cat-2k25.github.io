@@ -89,6 +89,49 @@
   <section id="custom-reaction-panel" class="custom-reaction-panel" aria-labelledby="custom-reaction-title"><div class="custom-reaction-heading"><div><span class="generator-stamp">USER CREATION / LOCAL ONLY</span><h4 id="custom-reaction-title">ТВОИ <span class="gradient-text">РЕАКЦИИ.</span></h4></div><p>Добавляй собственные фразы — они останутся в этом браузере. Коллекция вмещает до 30 реакций.</p></div><form class="custom-reaction-form" id="custom-reaction-form"><label for="custom-reaction-text">Текст реакции</label><textarea id="custom-reaction-text" name="custom-reaction-text" rows="3" maxlength="240" required placeholder="Например: Я хотел нажать одну кнопку… Окак."></textarea><div class="custom-reaction-form-footer"><div><label for="custom-reaction-context">Контекст</label><select id="custom-reaction-context" name="custom-reaction-context"><option value="plot-twist">Неожиданный поворот</option><option value="awkward">Неловкий момент</option><option value="technology">Техника опять чудит</option><option value="plans">Планы пошли не так</option><option value="everyday">Обычный день</option></select></div><span class="custom-reaction-counter" id="custom-reaction-counter">0 / 240</span></div><div class="custom-reaction-submit-row"><button class="button button-primary" id="save-custom-reaction" type="submit">Сохранить реакцию <span aria-hidden="true">＋</span></button><p id="custom-reaction-status" class="custom-reaction-status" aria-live="polite">Только для этого браузера. Не больше 240 символов в одной фразе.</p></div></form><section id="collection-transfer" class="collection-transfer" aria-labelledby="collection-transfer-title"><div class="collection-transfer-heading"><div><span class="generator-stamp">PORTABLE BACKUP / JSON</span><h5 id="collection-transfer-title">Перенос коллекций</h5></div><p>Сохрани свои реакции, историю и избранное в файл — или перенеси их из резервной копии.</p></div><div class="collection-transfer-actions"><button class="button button-ghost" id="export-meme-collections" type="button">Экспортировать JSON ↗</button><div class="collection-import-control"><label class="button button-ghost" for="import-meme-collections">Импортировать JSON ↙</label><input id="import-meme-collections" type="file" accept=".json,application/json"></div></div><p id="collection-transfer-status" class="collection-transfer-status" role="status" aria-live="polite">Файл обрабатывается только в браузере. Импорт объединит коллекции без повторов.</p></section>
     <div class="custom-reaction-list-heading"><h5>Моя коллекция <span class="generator-count" id="custom-reaction-count">0</span></h5><span class="generator-stamp">MAX / 30</span></div><ul class="reaction-list custom-reaction-list" id="custom-reaction-list" aria-label="Собственные реакции"><li class="reaction-empty">Коллекция пуста — добавь первую фразу выше.</li></ul></section>
 </div>
+<section class="meme-studio" id="meme-studio" aria-labelledby="meme-studio-title">
+  <div class="meme-studio-header">
+    <div><p class="eyebrow">EXPERIMENT / 002</p><h3 id="meme-studio-title">MEME <span class="gradient-text">STUDIO.</span></h3></div>
+    <p>Собери собственную мем-картинку. Всё рисуется прямо в браузере — исходные изображения не загружаются на сервер.</p>
+  </div>
+  <div class="meme-studio-layout">
+    <form class="meme-studio-controls" id="meme-studio-form">
+      <div class="meme-studio-control">
+        <label for="meme-template">Неоновый шаблон</label>
+        <select id="meme-template" name="meme-template">
+          <option value="cyber">Cyber Grid · бирюзовый</option>
+          <option value="sunset">Synthwave · закат</option>
+          <option value="glitch">Glitch · фиолетовый</option>
+          <option value="acid">Acid Cat · лайм</option>
+        </select>
+      </div>
+      <div class="meme-studio-control">
+        <label for="meme-image-upload">Своё изображение (необязательно)</label>
+        <input id="meme-image-upload" name="meme-image-upload" type="file" accept="image/png,image/jpeg,image/webp,image/gif">
+        <p class="meme-studio-hint">PNG, JPG, WebP или GIF · до 8 МБ. Для GIF берётся первый кадр.</p>
+      </div>
+      <div class="meme-studio-control">
+        <label for="meme-image-top-text">Верхняя надпись</label>
+        <input id="meme-image-top-text" name="meme-image-top-text" type="text" maxlength="100" value="КОГДА ВСЁ ИДЁТ ПО ПЛАНУ" autocomplete="off">
+      </div>
+      <div class="meme-studio-control">
+        <label for="meme-image-bottom-text">Нижняя надпись</label>
+        <textarea id="meme-image-bottom-text" name="meme-image-bottom-text" rows="2" maxlength="140" autocomplete="off">А ПОТОМ ПОЯВЛЯЕТСЯ ОН. ОКАК.</textarea>
+        <div class="meme-studio-field-footer"><button class="meme-studio-inline-button" id="use-current-reaction" type="button">Взять реакцию из генератора ↗</button><span id="meme-image-char-count">0 / 140</span></div>
+      </div>
+      <div class="meme-studio-actions">
+        <button class="button button-primary" id="download-meme-png" type="button">Скачать PNG ↓</button>
+        <button class="button button-ghost" id="reset-meme-image" type="button">Сбросить шаблон</button>
+      </div>
+      <p id="meme-studio-status" class="meme-studio-status" role="status" aria-live="polite">Предпросмотр готов. Размер итоговой картинки — 1200 × 1200 пикселей.</p>
+    </form>
+    <div class="meme-studio-preview">
+      <div class="meme-studio-preview-header"><span><i class="live-dot"></i> LIVE PREVIEW</span><span>1200 × 1200 / PNG</span></div>
+      <canvas id="meme-image-canvas" width="1200" height="1200" role="img" aria-label="Предпросмотр создаваемой мем-картинки">Предпросмотр мем-картинки. Используй поля рядом, чтобы изменить надписи.</canvas>
+      <p class="meme-studio-preview-note">Текст и шаблон обновляются автоматически. Загруженное фото остаётся только на твоём устройстве.</p>
+    </div>
+  </div>
+</section>
 <div class="terminal" id="terminal"><div class="terminal-topbar"><div class="window-controls"><span></span><span></span><span></span></div><div class="terminal-name"><span class="terminal-lock">▣</span> cybercat@archive:~</div><span class="terminal-version">CC-OS v2.5</span></div>
 <div class="terminal-content" id="terminal-output" role="log" aria-live="polite" aria-label="Вывод терминала"><p class="term-muted">Cyber Cat Interactive Shell [версия 2.5.0]</p><p class="term-muted">Это демонстрация. Введи <strong>help</strong>, чтобы увидеть команды.</p><p><span class="term-ok">[ OK ]</span> Интерфейс готов.</p></div>
 <form class="terminal-form" id="terminal-form"><label class="terminal-prompt" for="terminal-input">guest@cybercat:~$</label><input id="terminal-input" name="command" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="введи help и нажми Enter" aria-label="Команда терминала"><button type="submit" aria-label="Выполнить команду">↵</button></form>
