@@ -2,12 +2,13 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#080b14">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="mobile-web-app-capable" content="yes">
 <meta name="description" content="Cyber Cat 2K25 — цифровая лаборатория мема Окак. Исследуй историю, культуру и неоновую вселенную киберкота.">
 <meta property="og:title" content="Cyber Cat 2K25 — Окак в цифровой вселенной"><meta property="og:description" content="Неоновый киберпанк-проект об интернет-культуре, меме Окак и цифровом коте.">
-<title>Cyber Cat 2K25 — Окак в цифровой вселенной</title><link rel="icon" href="favicon.svg" type="image/svg+xml">
+<title>Cyber Cat 2K25 — Окак в цифровой вселенной</title><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="manifest" href="site.webmanifest"><link rel="apple-touch-icon" href="app-icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=1.9.0"><script src="script.js?v=1.9.0" defer></script>
+<link rel="stylesheet" href="style.css?v=2.0.0"><script src="script.js?v=2.0.0" defer></script>
 </head>
 <body>
 <a class="skip-link" href="#main">Перейти к содержимому</a><div class="ambient-grid" aria-hidden="true"></div><canvas id="particle-canvas" aria-hidden="true"></canvas><div class="scanline" aria-hidden="true"></div>
@@ -21,7 +22,8 @@
 <section class="hero section-wrap" id="home">
 <div class="hero-copy"><p class="eyebrow"><span class="live-dot"></span> DIGITAL CULTURE / ARCHIVE 025</p><h1>НЕ ОБЪЯСНЯЙ.<br><span class="gradient-text">ПРОСТО ОКАК.</span></h1>
 <p class="hero-lead">Добро пожаловать в цифровую вселенную Cyber Cat — место, где мемы становятся легендами, а чёрный кот знает больше, чем говорит.</p>
-<div class="hero-actions"><a class="button button-primary" href="#lore">Исследовать архив <span aria-hidden="true">↗</span></a><button class="button button-ghost" id="terminal-focus" type="button"><span aria-hidden="true">⌘</span> Запустить терминал</button></div>
+<div class="hero-actions"><a class="button button-primary" href="#lore">Исследовать архив <span aria-hidden="true">↗</span></a><button class="button button-ghost" id="terminal-focus" type="button"><span aria-hidden="true">⌘</span> Запустить терминал</button><button class="button button-ghost" id="install-app" type="button"><span aria-hidden="true">↓</span> Установить приложение</button></div>
+<p class="pwa-install-status" id="pwa-status" role="status" aria-live="polite">Установи Cyber Cat на главный экран, чтобы быстрее открывать его и пользоваться основными файлами офлайн.</p>
 <div class="hero-meta"><span><i class="meta-icon">◈</i> НЕОНОВАЯ ЭСТЕТИКА</span><span><i class="meta-icon">⌬</i> ИНТЕРАКТИВНЫЙ АРХИВ</span></div></div>
 <div class="hero-visual" aria-label="Иллюстрация киберкота в капюшоне"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="visual-cross cross-one">+</div><div class="visual-cross cross-two">+</div><div class="cat-halo"></div>
 <div class="cyber-cat" id="cyber-cat" role="img" aria-label="Стилизованное лицо чёрного кота в капюшоне"><div class="hood-back"></div><div class="cat-ear ear-left"></div><div class="cat-ear ear-right"></div><div class="cat-head"><div class="cat-brow brow-left"></div><div class="cat-brow brow-right"></div><div class="cat-eye eye-left"><span></span></div><div class="cat-eye eye-right"><span></span></div><div class="cat-nose"></div><div class="cat-mouth"></div><div class="whisker whisker-left"></div><div class="whisker whisker-right"></div></div><div class="hood-front"></div><div class="cat-collar"></div></div>

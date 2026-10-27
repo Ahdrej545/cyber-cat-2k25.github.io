@@ -223,3 +223,9 @@ body.motion-off #particle-canvas,body.motion-off .scanline{display:none}body.mot
 #share-meme-png:disabled{opacity:.65;cursor:wait}
 .saved-meme-card-actions .saved-meme-action[data-saved-meme-action="share"]:hover{border-color:var(--cyan);background:#4df5e80a;color:var(--cyan)}
 .saved-meme-card-actions .saved-meme-action:disabled{opacity:.6;cursor:wait}
+
+
+/* Cyber Cat 2K25 v2.0 — PWA install prompt and offline status */
+#install-app:disabled{opacity:.65;cursor:wait}
+.pwa-install-status{max-width:620px;margin:14px 0 0;color:#7f8da7;font-size:12px;line-height:1.55}
+@media(max-width:520px){.pwa-install-status{font-size:11px;margin-top:11px}.hero-actions #install-app{width:100%}}

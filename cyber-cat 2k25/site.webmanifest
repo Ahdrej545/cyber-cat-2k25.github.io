@@ -1,0 +1,63 @@
+{
+  "id": "./",
+  "name": "Cyber Cat 2K25",
+  "short_name": "Cyber Cat",
+  "description": "Неоновая мем-лаборатория: генератор реакций, Meme Studio и личная галерея.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "any",
+  "background_color": "#080b14",
+  "theme_color": "#080b14",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "app-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "app-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Открыть Meme Studio",
+      "short_name": "Meme Studio",
+      "url": "./index.html#meme-studio",
+      "icons": [
+        {
+          "src": "app-icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Создать реакцию",
+      "short_name": "Реакции",
+      "url": "./index.html#meme-generator",
+      "icons": [
+        {
+          "src": "app-icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ]
+}
