@@ -19,6 +19,7 @@ on:
       - feature/cyber-cat-2k25-v1.9-native-meme-sharing
       - feature/cyber-cat-2k25-v2-pwa-offline
       - feature/cyber-cat-2k25-v2.0.1-pwa-install-fix
+      - feature/cyber-cat-pwa-install-compat-v2.0.2
 
 permissions:
   contents: read
@@ -144,13 +145,13 @@ jobs:
           check(nodeDataNames.every((name) => nodes.includes(name)),
             'every network detail entry has a matching node button');
 
-          check(html.includes('href="style.css?v=2.0.1"'), 'page links v2.0.1 versioned stylesheet to bust stale caches');
-          check(html.includes('src="script.js?v=2.0.1"'), 'page links v2.0.1 versioned JavaScript to bust stale caches');
+          check(html.includes('href="style.css?v=2.0.2"'), 'page links v2.0.1 versioned stylesheet to bust stale caches');
+          check(html.includes('src="script.js?v=2.0.2"'), 'page links v2.0.1 versioned JavaScript to bust stale caches');
 
           let manifest = null;
           try { manifest = JSON.parse(fs.readFileSync(root + 'site.webmanifest', 'utf8')); }
           catch (error) { check(false, 'PWA web manifest is valid JSON'); }
-          check(html.includes('<link rel="manifest" href="site.webmanifest">'),
+          check(html.includes('<link rel="manifest" href="site.webmanifest?v=2.0.2">'),
             'page links to the installable PWA manifest');
           check(manifest && manifest.name === 'Cyber Cat 2K25' && manifest.start_url === './index.html' &&
             manifest.scope === './' && manifest.display === 'standalone',
@@ -159,7 +160,7 @@ jobs:
             icon.sizes === `${size}x${size}` && icon.type === 'image/png')),
             'PWA manifest includes standard 192px and 512px PNG icons');
           check(manifest && manifest.icons.some(icon =>
-            icon.src === 'app-icon-512.png?v=2.0.1' && icon.sizes === '512x512'),
+            icon.src === 'app-icon-512.png?v=2.0.2' && icon.sizes === '512x512'),
             'PWA manifest forces a cache-busted URL for the repaired 512px icon');
           check(['install-app', 'pwa-status'].every(id => idSet.has(id)),
             'PWA install button and accessible status message exist');
@@ -169,7 +170,7 @@ jobs:
           check(sw.includes('CACHE_NAME') && sw.includes('cache.addAll') && sw.includes('skipWaiting') &&
             sw.includes('clients.claim') && sw.includes('event.respondWith'),
             'service worker precaches app shell and handles offline requests');
-          check(sw.includes('./app-icon-512.png?v=2.0.1'),
+          check(sw.includes('./app-icon-512.png?v=2.0.2') && sw.includes('./site.webmanifest?v=2.0.2') && sw.includes('cyber-cat-shell-v2.0.2'),
             'service worker precaches the repaired icon under its cache-busted URL');
           check(js.includes('getManualPwaInstallHelp') && js.includes('На Android') && js.includes('iPhone/iPad'),
             'install button explains browser-specific manual installation paths');
