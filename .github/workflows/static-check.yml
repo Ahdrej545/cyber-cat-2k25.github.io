@@ -145,8 +145,8 @@ jobs:
           check(nodeDataNames.every((name) => nodes.includes(name)),
             'every network detail entry has a matching node button');
 
-          check(html.includes('href="style.css?v=2.0.2"'), 'page links v2.0.1 versioned stylesheet to bust stale caches');
-          check(html.includes('src="script.js?v=2.0.2"'), 'page links v2.0.1 versioned JavaScript to bust stale caches');
+          check(html.includes('href="style.css?v=2.0.2"'), 'page links v2.0.2 versioned stylesheet to bust stale caches');
+          check(html.includes('src="script.js?v=2.0.2"'), 'page links v2.0.2 versioned JavaScript to bust stale caches');
 
           let manifest = null;
           try { manifest = JSON.parse(fs.readFileSync(root + 'site.webmanifest', 'utf8')); }
