@@ -59,7 +59,7 @@ jobs:
 
           root = pathlib.Path("cyber-cat 2k25")
           expected = {"app-icon-192.png": (192, 192), "app-icon-512.png": (512, 512)}
-          signature = b"\\x89PNG\\r\\n\\x1a\\n"
+          signature = b"\x89PNG\r\n\x1a\n"
           for filename, dimensions in expected.items():
               data = (root / filename).read_bytes()
               if not data.startswith(signature):
@@ -166,7 +166,7 @@ jobs:
           check(sw.includes('CACHE_NAME') && sw.includes('cache.addAll') && sw.includes('skipWaiting') &&
             sw.includes('clients.claim') && sw.includes('event.respondWith'),
             'service worker precaches app shell and handles offline requests');
-          check(js.includes('getManualPwaInstallHelp') && js.includes('browser has not provided') === false,
+          check(js.includes('getManualPwaInstallHelp') && js.includes('На Android') && js.includes('iPhone/iPad'),
             'install button explains browser-specific manual installation paths');
           check(js.includes('worker.state==="activated"') && js.includes('worker.state==="redundant"'),
             'offline status waits for service worker activation and reports install failures');
