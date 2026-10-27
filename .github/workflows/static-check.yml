@@ -15,6 +15,7 @@ on:
       - feature/cyber-cat-2k25-v1.5
       - feature/cyber-cat-2k25-v1.6-gallery
       - feature/cyber-cat-2k25-v1.7-saved-gallery
+      - feature/cyber-cat-2k25-v1.8-gallery-backup
 
 permissions:
   contents: read
@@ -91,8 +92,8 @@ jobs:
           check(nodeDataNames.every((name) => nodes.includes(name)),
             'every network detail entry has a matching node button');
 
-          check(html.includes('href="style.css?v=1.7.0"'), 'page links v1.7 versioned stylesheet to bust stale caches');
-          check(html.includes('src="script.js?v=1.7.0"'), 'page links v1.7 versioned JavaScript to bust stale caches');
+          check(html.includes('href="style.css?v=1.8.0"'), 'page links v1.7 versioned stylesheet to bust stale caches');
+          check(html.includes('src="script.js?v=1.8.0"'), 'page links v1.7 versioned JavaScript to bust stale caches');
 
           const generatorIds = ['meme-generator', 'meme-context', 'meme-result',
             'meme-caption', 'generate-meme', 'copy-meme', 'share-meme'];
@@ -172,7 +173,7 @@ jobs:
 
           const savedGalleryIds = ['save-meme-to-gallery', 'saved-meme-gallery',
             'saved-meme-gallery-title', 'saved-meme-gallery-count', 'saved-meme-gallery-status',
-            'saved-meme-gallery-grid', 'refresh-saved-memes'];
+            'saved-meme-gallery-grid', 'refresh-saved-memes', 'export-saved-memes-zip', 'import-saved-memes-zip'];
           check(savedGalleryIds.every((id) => idSet.has(id)),
             'saved meme gallery has all expected controls and regions');
           check(js.includes('indexedDB.open(SAVED_MEMES_DB_NAME') && js.includes('createObjectStore(SAVED_MEMES_STORE'),
@@ -185,6 +186,12 @@ jobs:
             'saved memes can be downloaded and removed');
           check(js.includes('renderSavedMemeRecords') && js.includes('URL.createObjectURL(record.blob)'),
             'saved gallery renders local image thumbnails');
+          check(js.includes('createSavedMemeGalleryZip') && js.includes('readSavedMemeGalleryZip'),
+            'saved gallery supports ZIP export and validated ZIP restore');
+          check(js.includes('zipCRC32') && js.includes('application/zip') && js.includes('cyber-cat-2k25-gallery'),
+            'ZIP backup has CRC validation and an explicit versioned local format');
+          check(js.includes('replaceSavedMemeGalleryRecords') && js.includes('window.confirm'),
+            'gallery restore confirms before replacing the current local collection');
 
           if (failed) process.exit(1);
           NODE

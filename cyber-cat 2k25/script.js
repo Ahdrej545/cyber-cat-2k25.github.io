@@ -976,6 +976,305 @@ if(savedMemeGalleryGrid)savedMemeGalleryGrid.addEventListener("click",async even
     showToast("Ошибка работы с галереей");
   }
 });
+
+/* Cyber Cat 2K25 v1.8 — local ZIP backup/restore for the saved meme gallery */
+const exportSavedMemesZipButton=$("#export-saved-memes-zip");
+const importSavedMemesZipInput=$("#import-saved-memes-zip");
+const MAX_GALLERY_ZIP_SIZE=MAX_SAVED_MEMES*MAX_SAVED_MEME_SIZE+1024*1024;
+const ZIP_CRC_TABLE=(()=>{
+  const table=new Uint32Array(256);
+  for(let n=0;n<256;n++){
+    let value=n;
+    for(let bit=0;bit<8;bit++)value=(value&1)?(0xedb88320^(value>>>1)):(value>>>1);
+    table[n]=value>>>0;
+  }
+  return table;
+})();
+function zipCRC32(bytes){
+  let crc=0xffffffff;
+  for(let i=0;i<bytes.length;i++)crc=ZIP_CRC_TABLE[(crc^bytes[i])&0xff]^(crc>>>8);
+  return (crc^0xffffffff)>>>0;
+}
+function zipDosTimestamp(timestamp){
+  const date=new Date(Number(timestamp)||Date.now());
+  const year=Math.min(2107,Math.max(1980,date.getFullYear()));
+  return {
+    time:(date.getHours()<<11)|(date.getMinutes()<<5)|Math.floor(date.getSeconds()/2),
+    date:((year-1980)<<9)|((date.getMonth()+1)<<5)|date.getDate()
+  };
+}
+function createZipLocalHeader(nameBytes,size,crc,timestamp){
+  const header=new Uint8Array(30+nameBytes.length);
+  const view=new DataView(header.buffer);
+  const stamp=zipDosTimestamp(timestamp);
+  view.setUint32(0,0x04034b50,true);
+  view.setUint16(4,20,true);
+  view.setUint16(6,0x0800,true);
+  view.setUint16(8,0,true);
+  view.setUint16(10,stamp.time,true);
+  view.setUint16(12,stamp.date,true);
+  view.setUint32(14,crc,true);
+  view.setUint32(18,size,true);
+  view.setUint32(22,size,true);
+  view.setUint16(26,nameBytes.length,true);
+  view.setUint16(28,0,true);
+  header.set(nameBytes,30);
+  return header;
+}
+function createZipCentralHeader(nameBytes,size,crc,timestamp,localOffset){
+  const header=new Uint8Array(46+nameBytes.length);
+  const view=new DataView(header.buffer);
+  const stamp=zipDosTimestamp(timestamp);
+  view.setUint32(0,0x02014b50,true);
+  view.setUint16(4,20,true);
+  view.setUint16(6,20,true);
+  view.setUint16(8,0x0800,true);
+  view.setUint16(10,0,true);
+  view.setUint16(12,stamp.time,true);
+  view.setUint16(14,stamp.date,true);
+  view.setUint32(16,crc,true);
+  view.setUint32(20,size,true);
+  view.setUint32(24,size,true);
+  view.setUint16(28,nameBytes.length,true);
+  view.setUint16(30,0,true);
+  view.setUint16(32,0,true);
+  view.setUint16(34,0,true);
+  view.setUint16(36,0,true);
+  view.setUint32(38,0,true);
+  view.setUint32(42,localOffset,true);
+  header.set(nameBytes,46);
+  return header;
+}
+async function createSavedMemeGalleryZip(records){
+  const encoder=new TextEncoder();
+  const sorted=records.filter(record=>record&&record.blob instanceof Blob).sort((a,b)=>(Number(a.createdAt)||0)-(Number(b.createdAt)||0)).slice(-MAX_SAVED_MEMES);
+  const manifest={
+    format:"cyber-cat-2k25-gallery",
+    version:1,
+    exportedAt:Date.now(),
+    memes:sorted.map((record,index)=>({
+      file:"memes/meme-"+String(index+1).padStart(3,"0")+".png",
+      createdAt:Number(record.createdAt)||Date.now(),
+      topText:String(record.topText||"").slice(0,100),
+      bottomText:String(record.bottomText||"").slice(0,140),
+      theme:String(record.theme||"cyber").slice(0,40),
+      size:record.blob.size
+    }))
+  };
+  const files=[{name:"manifest.json",blob:new Blob([JSON.stringify(manifest,null,2)],{type:"application/json"}),timestamp:Date.now()}];
+  for(let index=0;index<sorted.length;index++){
+    files.push({
+      name:"memes/meme-"+String(index+1).padStart(3,"0")+".png",
+      blob:sorted[index].blob,
+      timestamp:Number(sorted[index].createdAt)||Date.now()
+    });
+  }
+  const localChunks=[];
+  const centralChunks=[];
+  const decoder=new TextEncoder();
+  let localOffset=0;
+  for(const file of files){
+    const nameBytes=decoder.encode(file.name);
+    const bytes=new Uint8Array(await file.blob.arrayBuffer());
+    const crc=zipCRC32(bytes);
+    const localHeader=createZipLocalHeader(nameBytes,bytes.length,crc,file.timestamp);
+    const centralHeader=createZipCentralHeader(nameBytes,bytes.length,crc,file.timestamp,localOffset);
+    localChunks.push(localHeader,bytes);
+    centralChunks.push(centralHeader);
+    localOffset+=localHeader.length+bytes.length;
+  }
+  const centralOffset=localOffset;
+  const centralSize=centralChunks.reduce((sum,chunk)=>sum+chunk.length,0);
+  const end=new Uint8Array(22);
+  const endView=new DataView(end.buffer);
+  endView.setUint32(0,0x06054b50,true);
+  endView.setUint16(4,0,true);
+  endView.setUint16(6,0,true);
+  endView.setUint16(8,files.length,true);
+  endView.setUint16(10,files.length,true);
+  endView.setUint32(12,centralSize,true);
+  endView.setUint32(16,centralOffset,true);
+  endView.setUint16(20,0,true);
+  const archive=new Blob([...localChunks,...centralChunks,end],{type:"application/zip"});
+  if(archive.size>MAX_GALLERY_ZIP_SIZE)throw new Error("Резервная копия превышает допустимый размер");
+  return archive;
+}
+async function readSavedMemeGalleryZip(file){
+  if(!(file instanceof Blob))throw new Error("Выбери ZIP-файл с резервной копией");
+  if(file.size<22||file.size>MAX_GALLERY_ZIP_SIZE)throw new Error("Размер ZIP не подходит для галереи");
+  if(file instanceof File&&!file.name.toLowerCase().endsWith(".zip")&&!["application/zip","application/x-zip-compressed"].includes(file.type))throw new Error("Выбранный файл не похож на ZIP-архив");
+  const tailStart=Math.max(0,file.size-65557);
+  const tail=new Uint8Array(await file.slice(tailStart).arrayBuffer());
+  let endIndex=-1;
+  for(let i=tail.length-22;i>=0;i--){
+    if(new DataView(tail.buffer,tail.byteOffset+i,4).getUint32(0,true)===0x06054b50){
+      const candidate=new DataView(tail.buffer,tail.byteOffset+i,tail.length-i);
+      if(i+22+candidate.getUint16(20,true)===tail.length){endIndex=i;break;}
+    }
+  }
+  if(endIndex<0)throw new Error("Не найден конец ZIP-архива");
+  const endView=new DataView(tail.buffer,tail.byteOffset+endIndex,tail.length-endIndex);
+  const disk=endView.getUint16(4,true);
+  const centralDisk=endView.getUint16(6,true);
+  const diskEntries=endView.getUint16(8,true);
+  const entryCount=endView.getUint16(10,true);
+  const centralSize=endView.getUint32(12,true);
+  const centralOffset=endView.getUint32(16,true);
+  const absoluteEnd=tailStart+endIndex;
+  if(disk!==0||centralDisk!==0||diskEntries!==entryCount||entryCount>MAX_SAVED_MEMES+1||entryCount===0xffff)throw new Error("Архив использует неподдерживаемую структуру ZIP");
+  if(centralOffset+centralSize!==absoluteEnd||centralSize>1024*1024)throw new Error("Структура ZIP повреждена или не поддерживается");
+  const directory=new Uint8Array(await file.slice(centralOffset,centralOffset+centralSize).arrayBuffer());
+  const directoryEntries=[];
+  const seenNames=new Set();
+  let position=0;
+  const decoder=new TextDecoder("utf-8",{fatal:true});
+  for(let i=0;i<entryCount;i++){
+    if(position+46>directory.length)throw new Error("Список файлов в ZIP повреждён");
+    const view=new DataView(directory.buffer,directory.byteOffset+position,directory.length-position);
+    if(view.getUint32(0,true)!==0x02014b50)throw new Error("Не удалось прочитать запись ZIP");
+    const flags=view.getUint16(8,true);
+    const method=view.getUint16(10,true);
+    const crc=view.getUint32(16,true);
+    const compressedSize=view.getUint32(20,true);
+    const uncompressedSize=view.getUint32(24,true);
+    const nameLength=view.getUint16(28,true);
+    const extraLength=view.getUint16(30,true);
+    const commentLength=view.getUint16(32,true);
+    const startDisk=view.getUint16(34,true);
+    const localOffset=view.getUint32(42,true);
+    const recordLength=46+nameLength+extraLength+commentLength;
+    if(position+recordLength>directory.length)throw new Error("Запись ZIP выходит за границы списка файлов");
+    if((flags&1)!==0||method!==0||compressedSize!==uncompressedSize||startDisk!==0)throw new Error("Поддерживаются только обычные ZIP-резервные копии Cyber Cat без сжатия");
+    const name=decoder.decode(directory.subarray(position+46,position+46+nameLength));
+    if(name!=="manifest.json"&&!/^memes\/meme-\d{3}\.png$/.test(name))throw new Error("В ZIP найден неизвестный файл: "+name);
+    if(seenNames.has(name))throw new Error("В ZIP повторяется имя файла");
+    if(name==="manifest.json"&&uncompressedSize>256*1024)throw new Error("Манифест ZIP слишком большой");
+    if(name!=="manifest.json"&&uncompressedSize>MAX_SAVED_MEME_SIZE)throw new Error("Одна из картинок превышает 12 МБ");
+    directoryEntries.push({name,flags,method,crc,size:uncompressedSize,localOffset});
+    seenNames.add(name);
+    position+=recordLength;
+  }
+  if(position!==directory.length||!seenNames.has("manifest.json"))throw new Error("ZIP не содержит корректный манифест");
+  const archiveFiles=new Map();
+  for(const entry of directoryEntries){
+    if(entry.localOffset+30>centralOffset)throw new Error("Локальная запись ZIP повреждена");
+    const localHeader=new Uint8Array(await file.slice(entry.localOffset,entry.localOffset+30).arrayBuffer());
+    const localView=new DataView(localHeader.buffer,localHeader.byteOffset,localHeader.byteLength);
+    if(localView.getUint32(0,true)!==0x04034b50||localView.getUint16(6,true)!==entry.flags||localView.getUint16(8,true)!==entry.method)throw new Error("Локальная запись ZIP не совпадает с каталогом");
+    const localNameLength=localView.getUint16(26,true);
+    const localExtraLength=localView.getUint16(28,true);
+    const localName=decoder.decode(new Uint8Array(await file.slice(entry.localOffset+30,entry.localOffset+30+localNameLength).arrayBuffer()));
+    if(localName!==entry.name)throw new Error("Имя файла в ZIP не совпадает с каталогом");
+    const payloadStart=entry.localOffset+30+localNameLength+localExtraLength;
+    const payloadEnd=payloadStart+entry.size;
+    if(payloadEnd>centralOffset||payloadEnd>file.size)throw new Error("Данные файла выходят за границы архива");
+    const mime=entry.name==="manifest.json"?"application/json":"image/png";
+    const payload=file.slice(payloadStart,payloadEnd,mime);
+    const bytes=new Uint8Array(await payload.arrayBuffer());
+    if(zipCRC32(bytes)!==entry.crc)throw new Error("Контрольная сумма не совпадает: "+entry.name);
+    if(entry.name!=="manifest.json"){
+      const pngSignature=[137,80,78,71,13,10,26,10];
+      if(bytes.length<8||!pngSignature.every((value,index)=>bytes[index]===value))throw new Error("Файл не является корректным PNG: "+entry.name);
+    }
+    archiveFiles.set(entry.name,payload);
+  }
+  let manifest;
+  try{manifest=JSON.parse(await archiveFiles.get("manifest.json").text())}catch(error){throw new Error("Манифест резервной копии не читается")}
+  if(!manifest||manifest.format!=="cyber-cat-2k25-gallery"||manifest.version!==1||!Array.isArray(manifest.memes)||manifest.memes.length>MAX_SAVED_MEMES)throw new Error("Формат резервной копии не поддерживается");
+  if(manifest.memes.length+1!==archiveFiles.size)throw new Error("Количество картинок не совпадает с манифестом");
+  const referenced=new Set(["manifest.json"]);
+  const restored=[];
+  for(const meta of manifest.memes){
+    if(!meta||typeof meta.file!=="string"||!/^memes\/meme-\d{3}\.png$/.test(meta.file)||referenced.has(meta.file))throw new Error("Манифест содержит некорректное имя картинки");
+    const blob=archiveFiles.get(meta.file);
+    if(!blob||blob.size>MAX_SAVED_MEME_SIZE||Number(meta.size)!==blob.size)throw new Error("Картинка отсутствует или имеет неверный размер: "+meta.file);
+    if(!Number.isFinite(Number(meta.createdAt))||typeof meta.topText!=="string"||meta.topText.length>100||typeof meta.bottomText!=="string"||meta.bottomText.length>140||typeof meta.theme!=="string"||meta.theme.length>40)throw new Error("Манифест содержит некорректные данные мем-картинки");
+    referenced.add(meta.file);
+    restored.push({
+      createdAt:Number(meta.createdAt),
+      topText:meta.topText,
+      bottomText:meta.bottomText,
+      theme:meta.theme,
+      blob
+    });
+  }
+  if(referenced.size!==archiveFiles.size)throw new Error("ZIP содержит картинки, которых нет в манифесте");
+  return restored;
+}
+async function replaceSavedMemeGalleryRecords(records){
+  if(!Array.isArray(records)||records.length>MAX_SAVED_MEMES)throw new Error("В резервной копии слишком много картинок");
+  const db=await openSavedMemeDatabase();
+  return new Promise((resolve,reject)=>{
+    const transaction=db.transaction(SAVED_MEMES_STORE,"readwrite");
+    const store=transaction.objectStore(SAVED_MEMES_STORE);
+    store.clear();
+    records.forEach(record=>{
+      store.add({
+        createdAt:Number(record.createdAt)||Date.now(),
+        topText:String(record.topText||"").slice(0,100),
+        bottomText:String(record.bottomText||"").slice(0,140),
+        theme:String(record.theme||"cyber").slice(0,40),
+        blob:record.blob
+      });
+    });
+    transaction.oncomplete=()=>resolve(true);
+    transaction.onerror=()=>reject(transaction.error||new Error("Не удалось восстановить галерею"));
+    transaction.onabort=()=>reject(transaction.error||new Error("Восстановление галереи отменено"));
+  });
+}
+if(exportSavedMemesZipButton)exportSavedMemesZipButton.addEventListener("click",async()=>{
+  exportSavedMemesZipButton.disabled=true;
+  const originalText=exportSavedMemesZipButton.textContent;
+  exportSavedMemesZipButton.textContent="Создаю ZIP…";
+  setSavedMemeGalleryStatus("Готовлю ZIP-резервную копию локальной галереи…");
+  try{
+    const records=await getSavedMemeRecords();
+    const archive=await createSavedMemeGalleryZip(records);
+    const url=URL.createObjectURL(archive);
+    const link=document.createElement("a");
+    link.href=url;
+    link.download="cyber-cat-gallery-"+new Date().toISOString().slice(0,10)+".zip";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),3000);
+    setSavedMemeGalleryStatus("ZIP создан: "+records.filter(record=>record&&record.blob instanceof Blob).length+" мемов. Сохрани файл на своём устройстве.");
+    showToast("Резервная копия галереи скачана");
+  }catch(error){
+    setSavedMemeGalleryStatus("Не удалось создать ZIP: "+(error?.message||"ошибка резервного копирования"));
+    showToast("Ошибка экспорта галереи");
+  }finally{
+    exportSavedMemesZipButton.disabled=false;
+    exportSavedMemesZipButton.textContent=originalText;
+  }
+});
+if(importSavedMemesZipInput)importSavedMemesZipInput.addEventListener("change",async event=>{
+  const input=event.currentTarget;
+  const file=input.files&&input.files[0];
+  if(!file)return;
+  setSavedMemeGalleryStatus("Проверяю ZIP-архив и контрольные суммы…");
+  try{
+    const records=await readSavedMemeGalleryZip(file);
+    const existing=await getSavedMemeRecords();
+    const approved=window.confirm(
+      "Восстановить "+records.length+" мем(ов) из ZIP?\n\nТекущая галерея"+(existing.length?" ("+existing.length+" мемов)":"")+" будет заменена. Отмена ничего не изменит."
+    );
+    if(!approved){
+      setSavedMemeGalleryStatus("Импорт отменён. Текущая галерея не изменилась.");
+      return;
+    }
+    await replaceSavedMemeGalleryRecords(records);
+    await refreshSavedMemeGallery();
+    setSavedMemeGalleryStatus("Галерея восстановлена из ZIP: "+records.length+" мем(ов). Картинки сохранены только в этом браузере.");
+    showToast("Галерея восстановлена из ZIP");
+  }catch(error){
+    setSavedMemeGalleryStatus("Не удалось импортировать ZIP: "+(error?.message||"файл повреждён или несовместим"));
+    showToast("Ошибка импорта резервной копии");
+  }finally{
+    input.value="";
+  }
+});
+
 if(savedMemeGallery)refreshSavedMemeGallery();
 
 const year=$("#year");if(year)year.textContent=String(new Date().getFullYear());setMotion(motionEnabled);
