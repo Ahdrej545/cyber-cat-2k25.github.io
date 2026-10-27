@@ -89,8 +89,8 @@ jobs:
           check(nodeDataNames.every((name) => nodes.includes(name)),
             'every network detail entry has a matching node button');
 
-          check(/href=["']style\.css["']/.test(html), 'page links its stylesheet');
-          check(/src=["']script\.js["']/.test(html), 'page links its JavaScript');
+          check(html.includes('href="style.css?v=1.5.1"'), 'page links versioned stylesheet to bust stale caches');
+          check(html.includes('src="script.js?v=1.5.1"'), 'page links versioned JavaScript to bust stale caches');
 
           const generatorIds = ['meme-generator', 'meme-context', 'meme-result',
             'meme-caption', 'generate-meme', 'copy-meme', 'share-meme'];
