@@ -90,3 +90,17 @@ body.motion-off #particle-canvas,body.motion-off .scanline{display:none}body.mot
 .custom-reaction-list .reaction-restore{min-height:58px}
 @media(max-width:800px){.custom-reaction-panel{padding:20px}.custom-reaction-heading{align-items:flex-start;flex-direction:column;gap:11px}.custom-reaction-heading>p{max-width:none}.custom-reaction-form select{max-width:none}}
 @media(max-width:520px){.custom-reaction-panel{padding:15px;margin-bottom:22px}.custom-reaction-heading h4{font-size:23px}.custom-reaction-heading>p{font-size:14px}.custom-reaction-form textarea{font-size:16px}.custom-reaction-form-footer{align-items:flex-end}.custom-reaction-submit-row{align-items:flex-start;flex-direction:column;gap:10px}.custom-reaction-submit-row .button{width:100%}.custom-reaction-list-heading h5{font-size:13px}}
+
+/* Cyber Cat 2K25 v1.4 — portable backup controls */
+.collection-transfer{margin:24px 0;padding:20px;border:1px solid rgba(77,245,232,.22);background:linear-gradient(120deg,#4df5e808,#a98bff0a)}
+.collection-transfer-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:20px}
+.collection-transfer-heading h5{margin:7px 0 0;font:600 17px var(--font-display);color:#e0e9fa}
+.collection-transfer-heading>p{max-width:390px;margin:0;color:var(--muted);font-size:14px;line-height:1.5}
+.collection-transfer-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:16px}
+.collection-transfer-actions .button,.collection-import-control .button{display:inline-flex;align-items:center;justify-content:center;min-height:43px;padding:10px 14px;font-size:9px;cursor:pointer}
+.collection-import-control{position:relative;display:inline-flex}
+.collection-import-control input{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;clip-path:inset(50%)}
+.collection-import-control input:focus-visible+.button,.collection-import-control input:focus-visible~.button{outline:2px solid var(--cyan);outline-offset:3px}
+.collection-transfer-status{margin:13px 0 0;color:#7e8ca7;font-size:13px;line-height:1.5}
+@media(max-width:800px){.collection-transfer-heading{flex-direction:column;gap:9px}.collection-transfer-heading>p{max-width:none}}
+@media(max-width:520px){.collection-transfer{padding:15px;margin:18px 0}.collection-transfer-actions{display:grid;grid-template-columns:1fr}.collection-transfer-actions .button,.collection-import-control,.collection-import-control .button{width:100%;box-sizing:border-box}.collection-transfer-status{font-size:12px}}
