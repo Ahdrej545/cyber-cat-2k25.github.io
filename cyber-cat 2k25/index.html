@@ -7,7 +7,7 @@
 <title>Cyber Cat 2K25 — Окак в цифровой вселенной</title><link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=1.7.0"><script src="script.js?v=1.7.0" defer></script>
+<link rel="stylesheet" href="style.css?v=1.8.0"><script src="script.js?v=1.8.0" defer></script>
 </head>
 <body>
 <a class="skip-link" href="#main">Перейти к содержимому</a><div class="ambient-grid" aria-hidden="true"></div><canvas id="particle-canvas" aria-hidden="true"></canvas><div class="scanline" aria-hidden="true"></div>
@@ -174,9 +174,15 @@
     </div>
     <div class="saved-meme-gallery-toolbar">
       <span id="saved-meme-gallery-count">0 / 20 мемов</span>
-      <button class="list-clear-button" id="refresh-saved-memes" type="button">Обновить галерею ↻</button>
+      <div class="saved-meme-gallery-tools">
+        <button class="list-clear-button" id="refresh-saved-memes" type="button">Обновить ↻</button>
+        <button class="saved-meme-backup-button" id="export-saved-memes-zip" type="button">Экспорт ZIP ↓</button>
+        <label class="saved-meme-backup-button saved-meme-import-label" for="import-saved-memes-zip">Восстановить ZIP ↑</label>
+        <input id="import-saved-memes-zip" class="saved-meme-import-input" type="file" accept=".zip,application/zip,application/x-zip-compressed">
+      </div>
     </div>
     <p class="saved-meme-gallery-status" id="saved-meme-gallery-status" role="status" aria-live="polite">Загрузка личной галереи…</p>
+    <p class="saved-meme-backup-note">ZIP содержит PNG-картинки и подписи. Экспорт и восстановление работают локально; импорт заменяет текущую галерею — сначала сохрани её резервную копию.</p>
     <div class="saved-meme-gallery-grid" id="saved-meme-gallery-grid">
       <p class="saved-meme-empty">Здесь появятся сохранённые мем-картинки.</p>
     </div>
