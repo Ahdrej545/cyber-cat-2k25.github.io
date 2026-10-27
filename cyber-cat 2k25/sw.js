@@ -1,15 +1,15 @@
 "use strict";
 
-const CACHE_NAME = "cyber-cat-shell-v2.0.1";
+const CACHE_NAME = "cyber-cat-shell-v2.0.2";
 const PRECACHE_URLS = [
   "./",
   "./index.html",
-  "./style.css?v=2.0.1",
-  "./script.js?v=2.0.1",
-  "./site.webmanifest",
+  "./style.css?v=2.0.2",
+  "./script.js?v=2.0.2",
+  "./site.webmanifest?v=2.0.2",
   "./favicon.svg",
   "./app-icon-192.png",
-  "./app-icon-512.png?v=2.0.1",
+  "./app-icon-512.png?v=2.0.2",
   "./assets/sounds/cat-roar.mp3"
 ];
 
