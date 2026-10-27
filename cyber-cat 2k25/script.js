@@ -755,5 +755,228 @@ if(resetMemeImageButton)resetMemeImageButton.addEventListener("click",()=>{
   });
 });
 
+/* Cyber Cat 2K25 v1.7 — persistent local meme gallery */
+const saveMemeToGalleryButton=$("#save-meme-to-gallery");
+const savedMemeGallery=$("#saved-meme-gallery");
+const savedMemeGalleryGrid=$("#saved-meme-gallery-grid");
+const savedMemeGalleryStatus=$("#saved-meme-gallery-status");
+const savedMemeGalleryCount=$("#saved-meme-gallery-count");
+const refreshSavedMemesButton=$("#refresh-saved-memes");
+const SAVED_MEMES_DB_NAME="cyber-cat-2k25-local-gallery";
+const SAVED_MEMES_DB_VERSION=1;
+const SAVED_MEMES_STORE="memes";
+const MAX_SAVED_MEMES=20;
+const MAX_SAVED_MEME_SIZE=12*1024*1024;
+let savedMemeDatabasePromise=null;
+let savedMemeObjectUrls=[];
+
+function setSavedMemeGalleryStatus(message){
+  if(savedMemeGalleryStatus)savedMemeGalleryStatus.textContent=message;
+}
+function openSavedMemeDatabase(){
+  if(savedMemeDatabasePromise)return savedMemeDatabasePromise;
+  savedMemeDatabasePromise=new Promise((resolve,reject)=>{
+    if(!("indexedDB" in window)){reject(new Error("IndexedDB недоступен в этом браузере"));return}
+    const request=window.indexedDB.open(SAVED_MEMES_DB_NAME,SAVED_MEMES_DB_VERSION);
+    request.onupgradeneeded=()=>{
+      const db=request.result;
+      if(!db.objectStoreNames.contains(SAVED_MEMES_STORE)){
+        const store=db.createObjectStore(SAVED_MEMES_STORE,{keyPath:"id",autoIncrement:true});
+        store.createIndex("createdAt","createdAt",{unique:false});
+      }
+    };
+    request.onsuccess=()=>resolve(request.result);
+    request.onerror=()=>reject(request.error||new Error("Не удалось открыть локальную галерею"));
+    request.onblocked=()=>reject(new Error("Обновление локальной галереи заблокировано другой вкладкой"));
+  });
+  savedMemeDatabasePromise=savedMemeDatabasePromise.catch(error=>{
+    savedMemeDatabasePromise=null;
+    throw error;
+  });
+  return savedMemeDatabasePromise;
+}
+async function getSavedMemeRecords(){
+  const db=await openSavedMemeDatabase();
+  return new Promise((resolve,reject)=>{
+    const transaction=db.transaction(SAVED_MEMES_STORE,"readonly");
+    const request=transaction.objectStore(SAVED_MEMES_STORE).getAll();
+    request.onsuccess=()=>resolve(Array.isArray(request.result)?request.result:[]);
+    request.onerror=()=>reject(request.error||new Error("Не удалось прочитать галерею"));
+    transaction.onerror=()=>reject(transaction.error||new Error("Ошибка чтения галереи"));
+  });
+}
+async function saveMemeRecord(record){
+  const db=await openSavedMemeDatabase();
+  return new Promise((resolve,reject)=>{
+    const transaction=db.transaction(SAVED_MEMES_STORE,"readwrite");
+    const store=transaction.objectStore(SAVED_MEMES_STORE);
+    let insertedId=null;
+    const request=store.getAll();
+    request.onsuccess=()=>{
+      const records=Array.isArray(request.result)?request.result:[];
+      records.sort((a,b)=>(Number(a.createdAt)||0)-(Number(b.createdAt)||0));
+      const removeCount=Math.max(0,records.length-MAX_SAVED_MEMES+1);
+      records.slice(0,removeCount).forEach(item=>store.delete(item.id));
+      const addRequest=store.add(record);
+      addRequest.onsuccess=()=>{insertedId=addRequest.result};
+      addRequest.onerror=()=>{try{transaction.abort()}catch(error){}};
+    };
+    request.onerror=()=>{try{transaction.abort()}catch(error){}};
+    transaction.oncomplete=()=>resolve(insertedId);
+    transaction.onerror=()=>reject(transaction.error||new Error("Не удалось сохранить мем"));
+    transaction.onabort=()=>reject(transaction.error||new Error("Сохранение галереи отменено"));
+  });
+}
+async function deleteSavedMemeRecord(id){
+  const db=await openSavedMemeDatabase();
+  return new Promise((resolve,reject)=>{
+    const transaction=db.transaction(SAVED_MEMES_STORE,"readwrite");
+    transaction.objectStore(SAVED_MEMES_STORE).delete(Number(id));
+    transaction.oncomplete=()=>resolve(true);
+    transaction.onerror=()=>reject(transaction.error||new Error("Не удалось удалить мем"));
+    transaction.onabort=()=>reject(transaction.error||new Error("Удаление галереи отменено"));
+  });
+}
+function revokeSavedMemeUrls(){
+  savedMemeObjectUrls.forEach(url=>URL.revokeObjectURL(url));
+  savedMemeObjectUrls=[];
+}
+function createSavedMemeButton(label,action,id,kind){
+  const button=document.createElement("button");
+  button.type="button";
+  button.className="saved-meme-action";
+  button.textContent=label;
+  button.dataset.savedMemeAction=action;
+  button.dataset.savedMemeId=String(id);
+  if(kind)button.dataset.savedMemeKind=kind;
+  return button;
+}
+function renderSavedMemeRecords(records){
+  if(!savedMemeGalleryGrid)return;
+  revokeSavedMemeUrls();
+  savedMemeGalleryGrid.replaceChildren();
+  const validRecords=records.filter(record=>record&&Number.isFinite(Number(record.id))&&record.blob instanceof Blob);
+  validRecords.sort((a,b)=>(Number(b.createdAt)||0)-(Number(a.createdAt)||0));
+  if(savedMemeGalleryCount)savedMemeGalleryCount.textContent=validRecords.length+" / "+MAX_SAVED_MEMES+" мемов";
+  if(validRecords.length===0){
+    const empty=document.createElement("p");
+    empty.className="saved-meme-empty";
+    empty.textContent="Галерея пока пуста. Собери мем выше и нажми «Сохранить в галерею».";
+    savedMemeGalleryGrid.appendChild(empty);
+    return;
+  }
+  validRecords.forEach(record=>{
+    const card=document.createElement("article");
+    card.className="saved-meme-card";
+    const image=document.createElement("img");
+    image.className="saved-meme-thumbnail";
+    image.alt="Сохранённый мем: "+((record.topText||"")+" "+(record.bottomText||"")).trim();
+    image.loading="lazy";
+    const imageUrl=URL.createObjectURL(record.blob);
+    savedMemeObjectUrls.push(imageUrl);
+    image.src=imageUrl;
+    const content=document.createElement("div");
+    content.className="saved-meme-card-content";
+    const caption=document.createElement("p");
+    caption.className="saved-meme-caption";
+    caption.textContent=[record.topText,record.bottomText].filter(Boolean).join(" / ")||"Мем без надписей";
+    const meta=document.createElement("p");
+    meta.className="saved-meme-meta";
+    const created=Number(record.createdAt);
+    meta.textContent=(Number.isFinite(created)?new Date(created).toLocaleString("ru-RU"):"Дата не указана")+" · "+Math.max(1,Math.round(record.blob.size/1024))+" КБ";
+    const actions=document.createElement("div");
+    actions.className="saved-meme-card-actions";
+    actions.append(
+      createSavedMemeButton("Скачать PNG ↓","download",record.id),
+      createSavedMemeButton("Удалить ×","delete",record.id)
+    );
+    content.append(caption,meta,actions);
+    card.append(image,content);
+    savedMemeGalleryGrid.appendChild(card);
+  });
+}
+async function refreshSavedMemeGallery(){
+  if(!savedMemeGalleryGrid)return;
+  try{
+    const records=await getSavedMemeRecords();
+    renderSavedMemeRecords(records);
+    setSavedMemeGalleryStatus("Сохранённые мемы доступны только в этом браузере. Максимум — "+MAX_SAVED_MEMES+" картинок.");
+  }catch(error){
+    if(savedMemeGalleryCount)savedMemeGalleryCount.textContent="Недоступна";
+    savedMemeGalleryGrid.replaceChildren();
+    const empty=document.createElement("p");empty.className="saved-meme-empty";
+    empty.textContent="Браузер не разрешил открыть локальную галерею. Проверь, что IndexedDB разрешён для сайта.";
+    savedMemeGalleryGrid.appendChild(empty);
+    setSavedMemeGalleryStatus("Не удалось открыть галерею: "+(error?.message||"ошибка браузера"));
+  }
+}
+if(saveMemeToGalleryButton)saveMemeToGalleryButton.addEventListener("click",async()=>{
+  if(!memeStudioCanvas){setSavedMemeGalleryStatus("Предпросмотр недоступен.");return}
+  saveMemeToGalleryButton.disabled=true;
+  saveMemeToGalleryButton.textContent="Сохраняю…";
+  try{
+    const blob=await new Promise((resolve,reject)=>{
+      try{
+        memeStudioCanvas.toBlob(result=>result?resolve(result):reject(new Error("Браузер не создал PNG")),"image/png");
+      }catch(error){reject(error)}
+    });
+    if(blob.size>MAX_SAVED_MEME_SIZE){
+      setSavedMemeGalleryStatus("Этот PNG больше 12 МБ. Попробуй изображение поменьше.");
+      showToast("Мем слишком большой для галереи");
+      return;
+    }
+    const record={
+      createdAt:Date.now(),
+      topText:memeImageTopText?.value?.trim().slice(0,100)||"",
+      bottomText:memeImageBottomText?.value?.trim().slice(0,140)||"",
+      theme:memeTemplateSelect?.value||"cyber",
+      blob
+    };
+    await saveMemeRecord(record);
+    await refreshSavedMemeGallery();
+    setSavedMemeGalleryStatus("Мем сохранён локально. В галерее не более "+MAX_SAVED_MEMES+" изображений — старые заменяются новыми.");
+    showToast("Мем добавлен в личную галерею");
+  }catch(error){
+    setSavedMemeGalleryStatus("Не удалось сохранить мем. Проверь свободное место и разрешения браузера.");
+    showToast("Ошибка сохранения в галерею");
+  }finally{
+    saveMemeToGalleryButton.disabled=false;
+    saveMemeToGalleryButton.textContent="Сохранить в галерею ☆";
+  }
+});
+if(refreshSavedMemesButton)refreshSavedMemesButton.addEventListener("click",refreshSavedMemeGallery);
+if(savedMemeGalleryGrid)savedMemeGalleryGrid.addEventListener("click",async event=>{
+  const button=event.target.closest("button[data-saved-meme-action]");
+  if(!button)return;
+  const id=Number(button.dataset.savedMemeId);
+  if(!Number.isFinite(id))return;
+  try{
+    if(button.dataset.savedMemeAction==="delete"){
+      const approved=window.confirm("Удалить этот мем из личной галереи?");
+      if(!approved)return;
+      await deleteSavedMemeRecord(id);
+      await refreshSavedMemeGallery();
+      setSavedMemeGalleryStatus("Мем удалён из локальной галереи.");
+      showToast("Мем удалён");
+      return;
+    }
+    if(button.dataset.savedMemeAction==="download"){
+      const records=await getSavedMemeRecords();
+      const record=records.find(item=>Number(item.id)===id);
+      if(!record||!(record.blob instanceof Blob))throw new Error("Мем не найден");
+      const url=URL.createObjectURL(record.blob);
+      const link=document.createElement("a");
+      link.href=url;link.download="cyber-cat-saved-meme-"+new Date(Number(record.createdAt)||Date.now()).toISOString().slice(0,10)+".png";
+      document.body.appendChild(link);link.click();link.remove();
+      setTimeout(()=>URL.revokeObjectURL(url),1500);
+      showToast("PNG скачан из галереи");
+    }
+  }catch(error){
+    setSavedMemeGalleryStatus("Не удалось выполнить действие. Попробуй ещё раз.");
+    showToast("Ошибка работы с галереей");
+  }
+});
+if(savedMemeGallery)refreshSavedMemeGallery();
+
 const year=$("#year");if(year)year.textContent=String(new Date().getFullYear());setMotion(motionEnabled);
 })();

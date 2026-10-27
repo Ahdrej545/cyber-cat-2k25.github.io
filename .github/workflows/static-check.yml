@@ -14,6 +14,7 @@ on:
       - feature/cyber-cat-2k25-v1.4
       - feature/cyber-cat-2k25-v1.5
       - feature/cyber-cat-2k25-v1.6-gallery
+      - feature/cyber-cat-2k25-v1.7-saved-gallery
 
 permissions:
   contents: read
@@ -90,8 +91,8 @@ jobs:
           check(nodeDataNames.every((name) => nodes.includes(name)),
             'every network detail entry has a matching node button');
 
-          check(html.includes('href="style.css?v=1.6.0"'), 'page links v1.6 versioned stylesheet to bust stale caches');
-          check(html.includes('src="script.js?v=1.6.0"'), 'page links v1.6 versioned JavaScript to bust stale caches');
+          check(html.includes('href="style.css?v=1.7.0"'), 'page links v1.7 versioned stylesheet to bust stale caches');
+          check(html.includes('src="script.js?v=1.7.0"'), 'page links v1.7 versioned JavaScript to bust stale caches');
 
           const generatorIds = ['meme-generator', 'meme-context', 'meme-result',
             'meme-caption', 'generate-meme', 'copy-meme', 'share-meme'];
@@ -168,6 +169,22 @@ jobs:
             'gallery category filters are wired to the interface');
           check(js.includes('motif==="cat"') && js.includes('motif:"cat"'),
             'cyber cat background motif is implemented');
+
+          const savedGalleryIds = ['save-meme-to-gallery', 'saved-meme-gallery',
+            'saved-meme-gallery-title', 'saved-meme-gallery-count', 'saved-meme-gallery-status',
+            'saved-meme-gallery-grid', 'refresh-saved-memes'];
+          check(savedGalleryIds.every((id) => idSet.has(id)),
+            'saved meme gallery has all expected controls and regions');
+          check(js.includes('indexedDB.open(SAVED_MEMES_DB_NAME') && js.includes('createObjectStore(SAVED_MEMES_STORE'),
+            'saved meme gallery persists in IndexedDB');
+          check(js.includes('MAX_SAVED_MEMES=20') && js.includes('MAX_SAVED_MEME_SIZE=12*1024*1024'),
+            'saved gallery has collection and per-image size limits');
+          check(js.includes('memeStudioCanvas.toBlob') && js.includes('saveMemeRecord(record)'),
+            'current canvas PNG can be saved into the gallery');
+          check(js.includes('createSavedMemeButton("Скачать PNG ↓","download"') && js.includes('createSavedMemeButton("Удалить ×","delete"'),
+            'saved memes can be downloaded and removed');
+          check(js.includes('renderSavedMemeRecords') && js.includes('URL.createObjectURL(record.blob)'),
+            'saved gallery renders local image thumbnails');
 
           if (failed) process.exit(1);
           NODE
