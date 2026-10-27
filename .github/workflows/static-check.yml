@@ -15,6 +15,7 @@ on:
       - feature/cyber-cat-2k25-v1.5
       - feature/cyber-cat-2k25-v1.6-gallery
       - feature/cyber-cat-2k25-v1.7-saved-gallery
+      - feature/cyber-cat-2k25-v1.8-gallery-backup
 
 permissions:
   contents: read
