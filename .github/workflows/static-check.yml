@@ -16,6 +16,7 @@ on:
       - feature/cyber-cat-2k25-v1.6-gallery
       - feature/cyber-cat-2k25-v1.7-saved-gallery
       - feature/cyber-cat-2k25-v1.8-gallery-backup
+      - feature/cyber-cat-2k25-v1.9-native-meme-sharing
 
 permissions:
   contents: read
@@ -92,8 +93,8 @@ jobs:
           check(nodeDataNames.every((name) => nodes.includes(name)),
             'every network detail entry has a matching node button');
 
-          check(html.includes('href="style.css?v=1.8.0"'), 'page links v1.7 versioned stylesheet to bust stale caches');
-          check(html.includes('src="script.js?v=1.8.0"'), 'page links v1.7 versioned JavaScript to bust stale caches');
+          check(html.includes('href="style.css?v=1.9.0"'), 'page links v1.9 versioned stylesheet to bust stale caches');
+          check(html.includes('src="script.js?v=1.9.0"'), 'page links v1.9 versioned JavaScript to bust stale caches');
 
           const generatorIds = ['meme-generator', 'meme-context', 'meme-result',
             'meme-caption', 'generate-meme', 'copy-meme', 'share-meme'];
@@ -142,13 +143,15 @@ jobs:
 
           const memeStudioIds = ['meme-studio', 'meme-template', 'meme-image-upload',
             'meme-image-top-text', 'meme-image-bottom-text', 'meme-image-canvas',
-            'download-meme-png', 'reset-meme-image', 'use-current-reaction', 'meme-studio-status'];
+            'download-meme-png', 'share-meme-png', 'reset-meme-image', 'use-current-reaction', 'meme-studio-status'];
           check(memeStudioIds.every((id) => idSet.has(id)),
             'meme studio has all expected editor and preview controls');
           check(/width="1200" height="1200"/.test(html),
             'meme canvas exports at 1200 by 1200 pixels');
           check(js.includes('memeStudioCanvas.toBlob') && js.includes('"image/png"'),
             'meme studio downloads a rendered PNG');
+          check(js.includes('sharePngBlobOrDownload') && js.includes('navigator.canShare') && js.includes('navigator.share'),
+            'meme PNG sharing uses the native share sheet with a download fallback');
           check(js.includes('MEME_IMAGE_MAX_FILE_SIZE=8*1024*1024') && js.includes('file.type') && js.includes('file.size>MEME_IMAGE_MAX_FILE_SIZE'),
             'uploaded images are type-checked and limited to 8 MB');
           check(js.includes('useCurrentReactionButton') && js.includes('memeResult?.textContent'),
@@ -184,6 +187,8 @@ jobs:
             'current canvas PNG can be saved into the gallery');
           check(js.includes('createSavedMemeButton("Скачать PNG ↓","download"') && js.includes('createSavedMemeButton("Удалить ×","delete"'),
             'saved memes can be downloaded and removed');
+          check(js.includes('createSavedMemeButton("Поделиться ↗","share"') && js.includes('button.dataset.savedMemeAction==="share"'),
+            'saved memes can be shared from the local gallery');
           check(js.includes('renderSavedMemeRecords') && js.includes('URL.createObjectURL(record.blob)'),
             'saved gallery renders local image thumbnails');
           check(js.includes('createSavedMemeGalleryZip') && js.includes('readSavedMemeGalleryZip'),
