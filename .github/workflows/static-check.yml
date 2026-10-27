@@ -12,6 +12,7 @@ on:
       - feature/cyber-cat-2k25-v1.2
       - feature/cyber-cat-2k25-v1.3
       - feature/cyber-cat-2k25-v1.4
+      - feature/cyber-cat-2k25-v1.5
 
 permissions:
   contents: read
