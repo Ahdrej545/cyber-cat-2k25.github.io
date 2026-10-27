@@ -14,14 +14,14 @@ permissions:
 
 jobs:
   validate:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
-          node-version: 22
+          node-version: 24
       - name: Check JavaScript syntax
         run: node --check "cyber-cat 2k25/script.js"
       - name: Verify local page assets
@@ -32,3 +32,60 @@ jobs:
           test -f "cyber-cat 2k25/script.js"
           test -f "cyber-cat 2k25/favicon.svg"
           test -f "cyber-cat 2k25/assets/sounds/cat-roar.mp3"
+      - name: Validate page structure and interactive controls
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const root = 'cyber-cat 2k25/';
+          const html = fs.readFileSync(root + 'index.html', 'utf8');
+          const js = fs.readFileSync(root + 'script.js', 'utf8');
+
+          let failed = false;
+          function check(condition, message) {
+            console.log(`${condition ? 'PASS' : 'FAIL'}: ${message}`);
+            if (!condition) failed = true;
+          }
+
+          const ids = [...html.matchAll(/\bid=["']([^"']+)["']/g)].map((m) => m[1]);
+          const idSet = new Set(ids);
+          const duplicateIds = ids.filter((id, index) => ids.indexOf(id) !== index);
+          check(duplicateIds.length === 0, 'HTML has no duplicate IDs');
+
+          const anchors = [...html.matchAll(/\bhref=["']#([^"']+)["']/g)].map((m) => m[1]);
+          const missingAnchors = [...new Set(anchors.filter((id) => !idSet.has(id)))];
+          check(missingAnchors.length === 0, 'all internal links point to existing IDs' +
+            (missingAnchors.length ? ': ' + missingAnchors.join(', ') : ''));
+
+          const controls = [...html.matchAll(/\baria-controls=["']([^"']+)["']/g)].map((m) => m[1]);
+          check(controls.every((id) => idSet.has(id)), 'ARIA controls refer to existing elements');
+
+          const jsSelectors = [...js.matchAll(/\$\(["']#([\w-]+)/g)].map((m) => m[1]);
+          const missingSelectors = [...new Set(jsSelectors.filter((id) => !idSet.has(id)))];
+          check(missingSelectors.length === 0, 'JavaScript ID selectors exist in the page' +
+            (missingSelectors.length ? ': ' + missingSelectors.join(', ') : ''));
+
+          const commandBlock = js.match(/const commands=\{([\s\S]*?)\n\};/);
+          const commandNames = commandBlock
+            ? [...commandBlock[1].matchAll(/(?:^|,|\n)\s*([a-z]+):\(\)=>/g)].map((m) => m[1])
+            : [];
+          const quickCommands = [...html.matchAll(/data-command=["']([^"']+)["']/g)].map((m) => m[1]);
+          check(commandNames.length > 0, 'terminal command table exists');
+          check(quickCommands.every((name) => commandNames.includes(name)),
+            'quick-command buttons map to implemented terminal commands');
+
+          const nodeBlock = js.match(/const nodeData=\{([\s\S]*?)\};/);
+          const nodeDataNames = nodeBlock
+            ? [...nodeBlock[1].matchAll(/(?:^|,)\s*([a-z]+):\{/g)].map((m) => m[1])
+            : [];
+          const nodes = [...html.matchAll(/data-node=["']([^"']+)["']/g)].map((m) => m[1]);
+          check(nodes.length > 0 && nodes.every((name) => nodeDataNames.includes(name)),
+            'every network node has matching detail data');
+          check(nodeDataNames.every((name) => nodes.includes(name)),
+            'every network detail entry has a matching node button');
+
+          check(/href=["']style\.css["']/.test(html), 'page links its stylesheet');
+          check(/src=["']script\.js["']/.test(html), 'page links its JavaScript');
+
+          if (failed) process.exit(1);
+          NODE
