@@ -704,7 +704,7 @@ renderMemeStudio();
 
 /* Cyber Cat 2K25 v1.6 — ready-made meme gallery */
 const memeGallery=$("#meme-gallery-grid");
-const memeGalleryFilters=$(".meme-gallery-filter");
+const memeGalleryFilters=Array.from(document.querySelectorAll(".meme-gallery-filter"));
 const memeGalleryPresets={
   "okak-control":{theme:"cyber",category:"okak",top:"ВСЁ ПОД КОНТРОЛЕМ",bottom:"КОНТРОЛЬ НЕ МОЙ. ОКАК."},
   "cyber-cat":{theme:"cat",category:"cat",top:"КОГДА ЗАШЁЛ НА МИНУТУ",bottom:"А УЖЕ 3 ЧАСА НОЧИ"},
@@ -748,6 +748,12 @@ memeGalleryFilters.forEach(filter=>filter.addEventListener("click",()=>{
     card.hidden=category!=="all"&&card.dataset.galleryCategory!==category;
   });
 }));
+if(resetMemeImageButton)resetMemeImageButton.addEventListener("click",()=>{
+  if(memeGallery)memeGallery.querySelectorAll(".meme-gallery-card").forEach(card=>{
+    card.classList.remove("selected");
+    card.setAttribute("aria-pressed","false");
+  });
+});
 
 const year=$("#year");if(year)year.textContent=String(new Date().getFullYear());setMotion(motionEnabled);
 })();
