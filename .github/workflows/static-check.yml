@@ -112,5 +112,15 @@ jobs:
           check(/data-reaction-action/.test(js) && /restoreReaction/.test(js),
             'saved reactions can be restored from the lists');
 
+          const customReactionIds = ['custom-reaction-panel', 'custom-reaction-form',
+            'custom-reaction-text', 'custom-reaction-context', 'custom-reaction-counter',
+            'custom-reaction-list', 'custom-reaction-count', 'save-custom-reaction'];
+          check(customReactionIds.every((id) => idSet.has(id)),
+            'custom reaction editor has all required controls');
+          check(/MAX_CUSTOM_REACTIONS=30/.test(js) && /MAX_CUSTOM_REACTION_LENGTH=240/.test(js),
+            'custom reactions have explicit list and text-length limits');
+          check(/data-custom-reaction-action/.test(js) && /readCustomReactions/.test(js),
+            'custom reactions can be restored, removed, and loaded');
+
           if (failed) process.exit(1);
           NODE
