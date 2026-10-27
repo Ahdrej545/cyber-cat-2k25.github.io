@@ -266,6 +266,130 @@ if(shareMemeButton)shareMemeButton.addEventListener("click",async()=>{
   const copied=await copyToClipboard(text+"\n"+window.location.href);
   showToast(copied?"Текст готов — скопировано для отправки":"Поделиться не удалось на этом устройстве");
 });
+/* Cyber Cat 2K25 v1.3 — user-authored reactions */
+const customReactionForm=$("#custom-reaction-form");
+const customReactionText=$("#custom-reaction-text");
+const customReactionContext=$("#custom-reaction-context");
+const customReactionCounter=$("#custom-reaction-counter");
+const customReactionStatus=$("#custom-reaction-status");
+const customReactionList=$("#custom-reaction-list");
+const customReactionCount=$("#custom-reaction-count");
+const CUSTOM_REACTIONS_KEY="cybercat.v13.custom-reactions";
+const MAX_CUSTOM_REACTIONS=30;
+const MAX_CUSTOM_REACTION_LENGTH=240;
+
+function isValidCustomReaction(item){
+  return item&&typeof item.text==="string"&&item.text.trim().length>0&&
+    item.text.length<=MAX_CUSTOM_REACTION_LENGTH&&
+    Object.prototype.hasOwnProperty.call(memeContextLabels,item.context);
+}
+function readCustomReactions(){
+  try{
+    const raw=window.localStorage.getItem(CUSTOM_REACTIONS_KEY);
+    if(!raw)return [];
+    const parsed=JSON.parse(raw);
+    if(!Array.isArray(parsed))return [];
+    return parsed.filter(isValidCustomReaction).slice(0,MAX_CUSTOM_REACTIONS).map(item=>({
+      text:item.text.trim(),context:item.context,
+      createdAt:Number.isFinite(item.createdAt)?item.createdAt:Date.now()
+    }));
+  }catch(error){return []}
+}
+function saveCustomReactions(){
+  try{window.localStorage.setItem(CUSTOM_REACTIONS_KEY,JSON.stringify(customReactionItems));return true}
+  catch(error){return false}
+}
+let customReactionItems=readCustomReactions();
+function renderCustomReactions(){
+  if(customReactionCount)customReactionCount.textContent=String(customReactionItems.length);
+  if(!customReactionList)return;
+  customReactionList.replaceChildren();
+  if(customReactionItems.length===0){
+    const empty=document.createElement("li");
+    empty.className="reaction-empty";
+    empty.textContent="Коллекция пуста — добавь первую фразу выше.";
+    customReactionList.appendChild(empty);
+    return;
+  }
+  customReactionItems.forEach((item,index)=>{
+    const row=document.createElement("li");
+    const restore=document.createElement("button");
+    restore.type="button";
+    restore.className="reaction-restore";
+    restore.dataset.customReactionAction="restore";
+    restore.dataset.customReactionIndex=String(index);
+    const context=document.createElement("span");
+    context.className="reaction-context";
+    context.textContent=memeContextLabels[item.context]||memeContextLabels.everyday;
+    const phrase=document.createElement("span");
+    phrase.className="reaction-text";
+    phrase.textContent=item.text;
+    restore.append(context,phrase);
+    const remove=document.createElement("button");
+    remove.type="button";
+    remove.className="reaction-remove";
+    remove.dataset.customReactionAction="remove";
+    remove.dataset.customReactionIndex=String(index);
+    remove.setAttribute("aria-label","Удалить собственную реакцию");
+    remove.textContent="×";
+    row.append(restore,remove);
+    customReactionList.appendChild(row);
+  });
+}
+function updateCustomReactionCounter(){
+  if(customReactionCounter)customReactionCounter.textContent=String(customReactionText?.value.length||0)+" / "+MAX_CUSTOM_REACTION_LENGTH;
+}
+if(customReactionText)customReactionText.addEventListener("input",updateCustomReactionCounter);
+if(customReactionForm)customReactionForm.addEventListener("submit",event=>{
+  event.preventDefault();
+  const text=customReactionText?.value.trim()||"";
+  const context=customReactionContext?.value||"everyday";
+  if(!text){
+    if(customReactionStatus)customReactionStatus.textContent="Сначала введи текст реакции.";
+    customReactionText?.focus();
+    return;
+  }
+  if(text.length>MAX_CUSTOM_REACTION_LENGTH){
+    showToast("Слишком длинная фраза — максимум 240 символов");
+    return;
+  }
+  if(customReactionItems.some(item=>item.text.toLocaleLowerCase()===text.toLocaleLowerCase()&&item.context===context)){
+    if(customReactionStatus)customReactionStatus.textContent="Такая фраза с этим контекстом уже есть.";
+    showToast("Эта реакция уже есть в коллекции");
+    return;
+  }
+  customReactionItems=[{text,context,createdAt:Date.now()},...customReactionItems].slice(0,MAX_CUSTOM_REACTIONS);
+  const saved=saveCustomReactions();
+  renderCustomReactions();
+  customReactionForm.reset();
+  updateCustomReactionCounter();
+  if(customReactionStatus)customReactionStatus.textContent="Реакция добавлена. "+(saved?"Она сохранена в этом браузере.":"Браузер не разрешил постоянное сохранение.");
+  showToast(saved?"Своя реакция сохранена":"Реакция добавлена до закрытия страницы");
+});
+if(customReactionList)customReactionList.addEventListener("click",event=>{
+  const button=event.target.closest("button[data-custom-reaction-action]");
+  if(!button)return;
+  const index=Number(button.dataset.customReactionIndex);
+  if(!Number.isInteger(index)||index<0||index>=customReactionItems.length)return;
+  if(button.dataset.customReactionAction==="restore"){
+    const item=customReactionItems[index];
+    if(memeContext)memeContext.value=item.context;
+    if(memeResult)memeResult.textContent=item.text;
+    if(memeCaption)memeCaption.textContent="СЦЕНАРИЙ: "+(memeContextLabels[item.context]||memeContextLabels.everyday);
+    recordMeme(getCurrentReaction());
+    showToast("Своя реакция восстановлена");
+    return;
+  }
+  if(button.dataset.customReactionAction==="remove"){
+    customReactionItems.splice(index,1);
+    const saved=saveCustomReactions();
+    renderCustomReactions();
+    showToast(saved?"Своя реакция удалена":"Реакция удалена из текущего списка");
+  }
+});
+renderCustomReactions();
+updateCustomReactionCounter();
+
 renderMemeCollections();
 
 const year=$("#year");if(year)year.textContent=String(new Date().getFullYear());setMotion(motionEnabled);
