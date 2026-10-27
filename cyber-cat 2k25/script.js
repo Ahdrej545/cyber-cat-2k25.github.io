@@ -723,7 +723,7 @@ function selectMemeGalleryPreset(id){
   if(memeImageTopText)memeImageTopText.value=preset.top;
   if(memeImageBottomText)memeImageBottomText.value=preset.bottom;
   if(memeGallery){
-    $(".meme-gallery-card",memeGallery).forEach(card=>{
+    $$(".meme-gallery-card",memeGallery).forEach(card=>{
       const selected=card.dataset.galleryPreset===id;
       card.classList.toggle("selected",selected);
       card.setAttribute("aria-pressed",String(selected));
@@ -744,7 +744,7 @@ memeGalleryFilters.forEach(filter=>filter.addEventListener("click",()=>{
     button.classList.toggle("active",selected);
     button.setAttribute("aria-pressed",String(selected));
   });
-  $(".meme-gallery-card",memeGallery).forEach(card=>{
+  $$(".meme-gallery-card",memeGallery).forEach(card=>{
     card.hidden=category!=="all"&&card.dataset.galleryCategory!==category;
   });
 }));
