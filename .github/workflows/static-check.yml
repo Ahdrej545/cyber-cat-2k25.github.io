@@ -17,6 +17,7 @@ on:
       - feature/cyber-cat-2k25-v1.7-saved-gallery
       - feature/cyber-cat-2k25-v1.8-gallery-backup
       - feature/cyber-cat-2k25-v1.9-native-meme-sharing
+      - feature/cyber-cat-2k25-v2-pwa-offline
 
 permissions:
   contents: read
@@ -32,7 +33,9 @@ jobs:
         with:
           node-version: 24
       - name: Check JavaScript syntax
-        run: node --check "cyber-cat 2k25/script.js"
+        run: |
+          node --check "cyber-cat 2k25/script.js"
+          node --check "cyber-cat 2k25/sw.js"
       - name: Verify local page assets
         shell: bash
         run: |
@@ -40,6 +43,10 @@ jobs:
           test -f "cyber-cat 2k25/style.css"
           test -f "cyber-cat 2k25/script.js"
           test -f "cyber-cat 2k25/favicon.svg"
+          test -f "cyber-cat 2k25/site.webmanifest"
+          test -f "cyber-cat 2k25/sw.js"
+          test -f "cyber-cat 2k25/app-icon-192.png"
+          test -f "cyber-cat 2k25/app-icon-512.png"
           test -f "cyber-cat 2k25/assets/sounds/cat-roar.mp3"
       - name: Validate page structure and interactive controls
         shell: bash
@@ -93,8 +100,28 @@ jobs:
           check(nodeDataNames.every((name) => nodes.includes(name)),
             'every network detail entry has a matching node button');
 
-          check(html.includes('href="style.css?v=1.9.0"'), 'page links v1.9 versioned stylesheet to bust stale caches');
-          check(html.includes('src="script.js?v=1.9.0"'), 'page links v1.9 versioned JavaScript to bust stale caches');
+          check(html.includes('href="style.css?v=2.0.0"'), 'page links v2.0 versioned stylesheet to bust stale caches');
+          check(html.includes('src="script.js?v=2.0.0"'), 'page links v2.0 versioned JavaScript to bust stale caches');
+
+          let manifest = null;
+          try { manifest = JSON.parse(fs.readFileSync(root + 'site.webmanifest', 'utf8')); }
+          catch (error) { check(false, 'PWA web manifest is valid JSON'); }
+          check(html.includes('<link rel="manifest" href="site.webmanifest">'),
+            'page links to the installable PWA manifest');
+          check(manifest && manifest.name === 'Cyber Cat 2K25' && manifest.start_url === './index.html' &&
+            manifest.scope === './' && manifest.display === 'standalone',
+            'PWA manifest has name, scoped start URL and standalone display');
+          check(manifest && [192, 512].every(size => manifest.icons.some(icon =>
+            icon.sizes === `${size}x${size}` && icon.type === 'image/png')),
+            'PWA manifest includes standard 192px and 512px PNG icons');
+          check(['install-app', 'pwa-status'].every(id => idSet.has(id)),
+            'PWA install button and accessible status message exist');
+          check(js.includes('beforeinstallprompt') && js.includes('navigator.serviceWorker.register("./sw.js"'),
+            'PWA install prompt and service worker registration are wired');
+          const sw = fs.readFileSync(root + 'sw.js', 'utf8');
+          check(sw.includes('CACHE_NAME') && sw.includes('cache.addAll') && sw.includes('skipWaiting') &&
+            sw.includes('clients.claim') && sw.includes('event.respondWith'),
+            'service worker precaches app shell and handles offline requests');
 
           const generatorIds = ['meme-generator', 'meme-context', 'meme-result',
             'meme-caption', 'generate-meme', 'copy-meme', 'share-meme'];
