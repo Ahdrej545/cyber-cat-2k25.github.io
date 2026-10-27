@@ -7,7 +7,7 @@
 <title>Cyber Cat 2K25 — Окак в цифровой вселенной</title><link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=1.6.0"><script src="script.js?v=1.6.0" defer></script>
+<link rel="stylesheet" href="style.css?v=1.7.0"><script src="script.js?v=1.7.0" defer></script>
 </head>
 <body>
 <a class="skip-link" href="#main">Перейти к содержимому</a><div class="ambient-grid" aria-hidden="true"></div><canvas id="particle-canvas" aria-hidden="true"></canvas><div class="scanline" aria-hidden="true"></div>
@@ -156,6 +156,7 @@
       </div>
       <div class="meme-studio-actions">
         <button class="button button-primary" id="download-meme-png" type="button">Скачать PNG ↓</button>
+        <button class="button button-ghost" id="save-meme-to-gallery" type="button">Сохранить в галерею ☆</button>
         <button class="button button-ghost" id="reset-meme-image" type="button">Сбросить шаблон</button>
       </div>
       <p id="meme-studio-status" class="meme-studio-status" role="status" aria-live="polite">Предпросмотр готов. Размер итоговой картинки — 1200 × 1200 пикселей.</p>
@@ -166,6 +167,20 @@
       <p class="meme-studio-preview-note">Текст и шаблон обновляются автоматически. Загруженное фото остаётся только на твоём устройстве.</p>
     </div>
   </div>
+  <section class="saved-meme-gallery" id="saved-meme-gallery" aria-labelledby="saved-meme-gallery-title">
+    <div class="saved-meme-gallery-heading">
+      <div><span class="generator-stamp">LOCAL COLLECTION / INDEXEDDB</span><h4 id="saved-meme-gallery-title">МОЯ <span class="gradient-text">ГАЛЕРЕЯ.</span></h4></div>
+      <p>Сохраняй готовые мемы, чтобы скачать их позже. Коллекция хранится в этом браузере и не отправляется на сервер.</p>
+    </div>
+    <div class="saved-meme-gallery-toolbar">
+      <span id="saved-meme-gallery-count">0 / 20 мемов</span>
+      <button class="list-clear-button" id="refresh-saved-memes" type="button">Обновить галерею ↻</button>
+    </div>
+    <p class="saved-meme-gallery-status" id="saved-meme-gallery-status" role="status" aria-live="polite">Загрузка личной галереи…</p>
+    <div class="saved-meme-gallery-grid" id="saved-meme-gallery-grid">
+      <p class="saved-meme-empty">Здесь появятся сохранённые мем-картинки.</p>
+    </div>
+  </section>
 </section>
 <div class="terminal" id="terminal"><div class="terminal-topbar"><div class="window-controls"><span></span><span></span><span></span></div><div class="terminal-name"><span class="terminal-lock">▣</span> cybercat@archive:~</div><span class="terminal-version">CC-OS v2.5</span></div>
 <div class="terminal-content" id="terminal-output" role="log" aria-live="polite" aria-label="Вывод терминала"><p class="term-muted">Cyber Cat Interactive Shell [версия 2.5.0]</p><p class="term-muted">Это демонстрация. Введи <strong>help</strong>, чтобы увидеть команды.</p><p><span class="term-ok">[ OK ]</span> Интерфейс готов.</p></div>
