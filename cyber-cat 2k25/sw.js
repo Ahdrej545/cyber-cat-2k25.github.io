@@ -1,11 +1,11 @@
 "use strict";
 
-const CACHE_NAME = "cyber-cat-shell-v2.0.0";
+const CACHE_NAME = "cyber-cat-shell-v2.0.1";
 const PRECACHE_URLS = [
   "./",
   "./index.html",
-  "./style.css?v=2.0.0",
-  "./script.js?v=2.0.0",
+  "./style.css?v=2.0.1",
+  "./script.js?v=2.0.1",
   "./site.webmanifest",
   "./favicon.svg",
   "./app-icon-192.png",

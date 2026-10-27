@@ -1352,17 +1352,27 @@ if(importSavedMemesZipInput)importSavedMemesZipInput.addEventListener("change",a
 });
 
 
-/* Cyber Cat 2K25 v2.0 — PWA install and offline app shell */
+/* Cyber Cat 2K25 v2.0.1 — PWA install prompt and reliable offline status */
 const installAppButton=$("#install-app");
 const pwaStatus=$("#pwa-status");
 let deferredPwaInstallPrompt=null;
 function setPwaStatus(message){
   if(pwaStatus)pwaStatus.textContent=message;
 }
+function getManualPwaInstallHelp(){
+  const ua=navigator.userAgent||"";
+  if(/iphone|ipad|ipod/i.test(ua)){
+    return "На iPhone/iPad: открой сайт в Safari, нажми «Поделиться» и выбери «На экран Домой».";
+  }
+  if(/android/i.test(ua)){
+    return "На Android: открой меню браузера (⋮) и выбери «Установить приложение» или «Добавить на главный экран». Если пункта нет, попробуй этот адрес в Google Chrome; оставь сайт открытым примерно на 30 секунд и обнови страницу.";
+  }
+  return "На компьютере в Chrome или Edge открой меню браузера и выбери «Установить Cyber Cat» / «Установить приложение». На других браузерах название пункта может отличаться.";
+}
 if(installAppButton)installAppButton.addEventListener("click",async()=>{
   if(!deferredPwaInstallPrompt){
-    setPwaStatus("В меню браузера выбери «Установить приложение» или «Добавить на главный экран». После первого открытия основные файлы Cyber Cat будут доступны офлайн.");
-    showToast("Открой меню браузера и выбери установку");
+    setPwaStatus("Браузер пока не предоставил автоматическое окно установки. "+getManualPwaInstallHelp());
+    showToast("Показал инструкцию по установке");
     return;
   }
   installAppButton.disabled=true;
@@ -1374,10 +1384,10 @@ if(installAppButton)installAppButton.addEventListener("click",async()=>{
       setPwaStatus("Cyber Cat добавляется на устройство. Его можно запускать с главного экрана.");
       showToast("Установка Cyber Cat подтверждена");
     }else{
-      setPwaStatus("Установка не завершена. Ты можешь попробовать ещё раз через меню браузера.");
+      setPwaStatus("Установка не завершена. "+getManualPwaInstallHelp());
     }
   }catch(error){
-    setPwaStatus("Не удалось открыть окно установки. Попробуй меню браузера: «Установить приложение» или «Добавить на главный экран».");
+    setPwaStatus("Автоматическое окно установки не открылось. "+getManualPwaInstallHelp());
   }finally{
     installAppButton.disabled=false;
   }
@@ -1385,8 +1395,11 @@ if(installAppButton)installAppButton.addEventListener("click",async()=>{
 window.addEventListener("beforeinstallprompt",event=>{
   event.preventDefault();
   deferredPwaInstallPrompt=event;
-  if(installAppButton)installAppButton.title="Установить Cyber Cat как приложение";
-  setPwaStatus("Cyber Cat готов к установке. Нажми «Установить приложение».");
+  if(installAppButton){
+    installAppButton.title="Установить Cyber Cat как приложение";
+    installAppButton.textContent="↓ Установить приложение";
+  }
+  setPwaStatus("Cyber Cat распознан браузером как устанавливаемое приложение. Нажми «Установить приложение».");
 });
 window.addEventListener("appinstalled",()=>{
   deferredPwaInstallPrompt=null;
@@ -1396,8 +1409,25 @@ window.addEventListener("appinstalled",()=>{
 if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost"||location.hostname==="127.0.0.1")){
   window.addEventListener("load",()=>{
     navigator.serviceWorker.register("./sw.js",{scope:"./"})
-      .then(()=>setPwaStatus("Офлайн-режим включён: после первого успешного открытия основные файлы сайта сохраняются на устройстве." ))
-      .catch(()=>setPwaStatus("Установка доступна через меню браузера. Офлайн-режим не активировался в этом браузере."));
+      .then(registration=>{
+        const worker=registration.installing||registration.waiting||registration.active;
+        if(!worker){
+          setPwaStatus("Регистрация офлайн-режима началась, но браузер не подтвердил активацию. Обнови страницу через несколько секунд.");
+          return;
+        }
+        const reportWorkerState=()=>{
+          if(worker.state==="activated"){
+            setPwaStatus("Офлайн-режим активирован. После успешного первого кэширования основные файлы доступны без интернета.");
+          }else if(worker.state==="redundant"){
+            setPwaStatus("Браузер не смог включить офлайн-режим. Проверь соединение и обнови страницу; установку попробуй через меню браузера.");
+          }
+        };
+        reportWorkerState();
+        worker.addEventListener("statechange",reportWorkerState);
+      })
+      .catch(()=>{
+        setPwaStatus("Офлайн-режим не активировался. "+getManualPwaInstallHelp());
+      });
   },{once:true});
 }
 
