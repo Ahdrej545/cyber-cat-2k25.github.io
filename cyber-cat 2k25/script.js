@@ -1351,6 +1351,56 @@ if(importSavedMemesZipInput)importSavedMemesZipInput.addEventListener("change",a
   }
 });
 
+
+/* Cyber Cat 2K25 v2.0 — PWA install and offline app shell */
+const installAppButton=$("#install-app");
+const pwaStatus=$("#pwa-status");
+let deferredPwaInstallPrompt=null;
+function setPwaStatus(message){
+  if(pwaStatus)pwaStatus.textContent=message;
+}
+if(installAppButton)installAppButton.addEventListener("click",async()=>{
+  if(!deferredPwaInstallPrompt){
+    setPwaStatus("В меню браузера выбери «Установить приложение» или «Добавить на главный экран». После первого открытия основные файлы Cyber Cat будут доступны офлайн.");
+    showToast("Открой меню браузера и выбери установку");
+    return;
+  }
+  installAppButton.disabled=true;
+  try{
+    deferredPwaInstallPrompt.prompt();
+    const choice=await deferredPwaInstallPrompt.userChoice;
+    deferredPwaInstallPrompt=null;
+    if(choice?.outcome==="accepted"){
+      setPwaStatus("Cyber Cat добавляется на устройство. Его можно запускать с главного экрана.");
+      showToast("Установка Cyber Cat подтверждена");
+    }else{
+      setPwaStatus("Установка не завершена. Ты можешь попробовать ещё раз через меню браузера.");
+    }
+  }catch(error){
+    setPwaStatus("Не удалось открыть окно установки. Попробуй меню браузера: «Установить приложение» или «Добавить на главный экран».");
+  }finally{
+    installAppButton.disabled=false;
+  }
+});
+window.addEventListener("beforeinstallprompt",event=>{
+  event.preventDefault();
+  deferredPwaInstallPrompt=event;
+  if(installAppButton)installAppButton.title="Установить Cyber Cat как приложение";
+  setPwaStatus("Cyber Cat готов к установке. Нажми «Установить приложение».");
+});
+window.addEventListener("appinstalled",()=>{
+  deferredPwaInstallPrompt=null;
+  setPwaStatus("Cyber Cat установлен. Теперь его можно запускать с главного экрана или из меню приложений.");
+  showToast("Cyber Cat установлен");
+});
+if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost"||location.hostname==="127.0.0.1")){
+  window.addEventListener("load",()=>{
+    navigator.serviceWorker.register("./sw.js",{scope:"./"})
+      .then(()=>setPwaStatus("Офлайн-режим включён: после первого успешного открытия основные файлы сайта сохраняются на устройстве." ))
+      .catch(()=>setPwaStatus("Установка доступна через меню браузера. Офлайн-режим не активировался в этом браузере."));
+  },{once:true});
+}
+
 if(savedMemeGallery)refreshSavedMemeGallery();
 
 const year=$("#year");if(year)year.textContent=String(new Date().getFullYear());setMotion(motionEnabled);
