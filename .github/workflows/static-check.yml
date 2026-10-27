@@ -11,6 +11,7 @@ on:
       - feature/cyber-cat-2k25-v1.1
       - feature/cyber-cat-2k25-v1.2
       - feature/cyber-cat-2k25-v1.3
+      - feature/cyber-cat-2k25-v1.4
 
 permissions:
   contents: read
@@ -121,6 +122,19 @@ jobs:
             'custom reactions have explicit list and text-length limits');
           check(/data-custom-reaction-action/.test(js) && /readCustomReactions/.test(js),
             'custom reactions can be restored, removed, and loaded');
+
+          const transferIds = ['collection-transfer', 'collection-transfer-title',
+            'export-meme-collections', 'import-meme-collections', 'collection-transfer-status'];
+          check(transferIds.every((id) => idSet.has(id)),
+            'collection export/import UI has all expected controls');
+          check(js.includes('COLLECTION_EXPORT_FORMAT') && js.includes('COLLECTION_EXPORT_VERSION=1'),
+            'collection backup uses an explicit versioned JSON format');
+          check(js.includes('URL.createObjectURL') && js.includes('await file.text()'),
+            'collection export creates a file and import reads a selected file');
+          check(js.includes('MAX_IMPORT_FILE_SIZE=100*1024') && js.includes('parsed.format!==COLLECTION_EXPORT_FORMAT'),
+            'collection import validates file size and backup format');
+          check(js.includes('mergeReactionLists') && js.includes('renderCustomReactions'),
+            'collection import merges validated items and refreshes the custom collection');
 
           if (failed) process.exit(1);
           NODE

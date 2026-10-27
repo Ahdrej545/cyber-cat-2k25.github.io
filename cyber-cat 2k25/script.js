@@ -390,6 +390,126 @@ if(customReactionList)customReactionList.addEventListener("click",event=>{
 renderCustomReactions();
 updateCustomReactionCounter();
 
+/* Cyber Cat 2K25 v1.4 — portable collection backup */
+const exportCollectionsButton=$("#export-meme-collections");
+const importCollectionsInput=$("#import-meme-collections");
+const collectionTransferStatus=$("#collection-transfer-status");
+const COLLECTION_EXPORT_FORMAT="cyber-cat-2k25-collections";
+const COLLECTION_EXPORT_VERSION=1;
+const MAX_IMPORT_FILE_SIZE=100*1024;
+
+function updateCollectionTransferStatus(message){
+  if(collectionTransferStatus)collectionTransferStatus.textContent=message;
+}
+function mergeReactionLists(existing,incoming,limit,validator){
+  const merged=[];
+  const seen=new Set();
+  for(const item of [...incoming,...existing]){
+    if(!validator(item))continue;
+    const text=item.text.trim();
+    const key=item.context+"\u0000"+text.toLocaleLowerCase();
+    if(seen.has(key))continue;
+    seen.add(key);
+    merged.push({text,context:item.context,createdAt:Number.isFinite(item.createdAt)?item.createdAt:Date.now()});
+    if(merged.length>=limit)break;
+  }
+  return merged;
+}
+function exportMemeCollections(){
+  const backup={
+    format:COLLECTION_EXPORT_FORMAT,
+    version:COLLECTION_EXPORT_VERSION,
+    exportedAt:new Date().toISOString(),
+    collections:{
+      history:memeHistoryItems.slice(0,MAX_MEME_HISTORY),
+      favorites:memeFavoriteItems.slice(0,MAX_MEME_FAVORITES),
+      custom:customReactionItems.slice(0,MAX_CUSTOM_REACTIONS)
+    }
+  };
+  const blob=new Blob([JSON.stringify(backup,null,2)],{type:"application/json;charset=utf-8"});
+  const url=URL.createObjectURL(blob);
+  const link=document.createElement("a");
+  link.href=url;
+  link.download="cyber-cat-collections-"+new Date().toISOString().slice(0,10)+".json";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  updateCollectionTransferStatus("Резервная копия подготовлена: история, избранное и собственные реакции.");
+  showToast("Коллекции экспортированы в JSON");
+}
+function importReactionArray(value,limit,validator){
+  if(!Array.isArray(value))return [];
+  return value.filter(validator).map(item=>({
+    text:item.text.trim(),
+    context:item.context,
+    createdAt:Number.isFinite(item.createdAt)?item.createdAt:Date.now()
+  })).slice(0,limit);
+}
+async function importMemeCollections(file){
+  if(!file)return;
+  if(file.size>MAX_IMPORT_FILE_SIZE){
+    updateCollectionTransferStatus("Файл слишком большой. Максимальный размер — 100 КБ.");
+    showToast("Файл импорта слишком большой");
+    return;
+  }
+  let parsed;
+  try{
+    parsed=JSON.parse(await file.text());
+  }catch(error){
+    updateCollectionTransferStatus("Не удалось прочитать JSON. Проверь файл и попробуй снова.");
+    showToast("Некорректный JSON-файл");
+    return;
+  }
+  if(!parsed||typeof parsed!=="object"||parsed.format!==COLLECTION_EXPORT_FORMAT||
+    parsed.version!==COLLECTION_EXPORT_VERSION||!parsed.collections||typeof parsed.collections!=="object"){
+    updateCollectionTransferStatus("Формат файла не распознан или версия резервной копии не поддерживается.");
+    showToast("Неподдерживаемый формат резервной копии");
+    return;
+  }
+  const incoming=parsed.collections;
+  const importedHistory=importReactionArray(incoming.history,MAX_MEME_HISTORY,isValidStoredReaction);
+  const importedFavorites=importReactionArray(incoming.favorites,MAX_MEME_FAVORITES,isValidStoredReaction);
+  const importedCustom=importReactionArray(incoming.custom,MAX_CUSTOM_REACTIONS,isValidCustomReaction);
+  const nextHistory=mergeReactionLists(memeHistoryItems,importedHistory,MAX_MEME_HISTORY,isValidStoredReaction);
+  const nextFavorites=mergeReactionLists(memeFavoriteItems,importedFavorites,MAX_MEME_FAVORITES,isValidStoredReaction);
+  const nextCustom=mergeReactionLists(customReactionItems,importedCustom,MAX_CUSTOM_REACTIONS,isValidCustomReaction);
+
+  const oldHistory=memeHistoryItems,oldFavorites=memeFavoriteItems,oldCustom=customReactionItems;
+  memeHistoryItems=nextHistory;
+  memeFavoriteItems=nextFavorites;
+  customReactionItems=nextCustom;
+  const historySaved=writeStoredReactions(MEME_HISTORY_KEY,memeHistoryItems);
+  const favoritesSaved=writeStoredReactions(MEME_FAVORITES_KEY,memeFavoriteItems);
+  const customSaved=saveCustomReactions();
+  if(!(historySaved&&favoritesSaved&&customSaved)){
+    memeHistoryItems=oldHistory;
+    memeFavoriteItems=oldFavorites;
+    customReactionItems=oldCustom;
+    writeStoredReactions(MEME_HISTORY_KEY,memeHistoryItems);
+    writeStoredReactions(MEME_FAVORITES_KEY,memeFavoriteItems);
+    saveCustomReactions();
+    updateCollectionTransferStatus("Браузер не разрешил сохранить импорт. Исходные коллекции оставлены без изменений.");
+    showToast("Не удалось сохранить импорт");
+    return;
+  }
+  renderMemeCollections();
+  renderCustomReactions();
+  updateCollectionTransferStatus("Импорт завершён: коллекции объединены без повторов. История и избранное ограничены своими стандартными лимитами.");
+  showToast("Коллекции импортированы");
+}
+if(exportCollectionsButton)exportCollectionsButton.addEventListener("click",exportMemeCollections);
+if(importCollectionsInput)importCollectionsInput.addEventListener("change",async()=>{
+  const file=importCollectionsInput.files&&importCollectionsInput.files[0];
+  try{await importMemeCollections(file)}
+  catch(error){
+    updateCollectionTransferStatus("Импорт не завершён. Проверь файл и наличие свободного места в браузере.");
+    showToast("Ошибка импорта коллекций");
+  }finally{
+    importCollectionsInput.value="";
+  }
+});
+
 renderMemeCollections();
 
 const year=$("#year");if(year)year.textContent=String(new Date().getFullYear());setMotion(motionEnabled);
