@@ -158,6 +158,9 @@ jobs:
           check(manifest && [192, 512].every(size => manifest.icons.some(icon =>
             icon.sizes === `${size}x${size}` && icon.type === 'image/png')),
             'PWA manifest includes standard 192px and 512px PNG icons');
+          check(manifest && manifest.icons.some(icon =>
+            icon.src === 'app-icon-512.png?v=2.0.1' && icon.sizes === '512x512'),
+            'PWA manifest forces a cache-busted URL for the repaired 512px icon');
           check(['install-app', 'pwa-status'].every(id => idSet.has(id)),
             'PWA install button and accessible status message exist');
           check(js.includes('beforeinstallprompt') && js.includes('navigator.serviceWorker.register("./sw.js"'),
@@ -166,6 +169,8 @@ jobs:
           check(sw.includes('CACHE_NAME') && sw.includes('cache.addAll') && sw.includes('skipWaiting') &&
             sw.includes('clients.claim') && sw.includes('event.respondWith'),
             'service worker precaches app shell and handles offline requests');
+          check(sw.includes('./app-icon-512.png?v=2.0.1'),
+            'service worker precaches the repaired icon under its cache-busted URL');
           check(js.includes('getManualPwaInstallHelp') && js.includes('На Android') && js.includes('iPhone/iPad'),
             'install button explains browser-specific manual installation paths');
           check(js.includes('worker.state==="activated"') && js.includes('worker.state==="redundant"'),
