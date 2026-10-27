@@ -34,5 +34,95 @@ if(form&&input&&output){form.addEventListener("submit",e=>{e.preventDefault();co
 const focusButton=$("#terminal-focus");if(focusButton&&input)focusButton.addEventListener("click",()=>{$("#terminal").scrollIntoView({behavior:reducedMotion.matches?"auto":"smooth",block:"center"});setTimeout(()=>input.focus(),reducedMotion.matches?0:350);runCommand("status")});
 const soundButton=$("#cat-sound");let catAudio=null;if(soundButton)soundButton.addEventListener("click",async()=>{try{if(!catAudio){catAudio=new Audio("assets/sounds/cat-roar.mp3");catAudio.preload="none"}catAudio.currentTime=0;await catAudio.play();showToast("Мяу! Звуковой модуль активирован")}catch(error){showToast("Звук не загрузился. Проверь соединение и файл аудио.")}});
 const cat=$("#cyber-cat");if(cat&&!reducedMotion.matches){cat.addEventListener("click",()=>{cat.animate([{transform:"translateY(0) rotate(0)"},{transform:"translateY(-12px) rotate(-3deg)"},{transform:"translateY(0) rotate(0)"}],{duration:450,easing:"ease-out"});showToast("Окак. Кот заметил тебя.")});cat.setAttribute("tabindex","0");cat.setAttribute("role","button");cat.setAttribute("aria-label","Нажми, чтобы активировать реакцию киберкота");cat.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();cat.click()}})}
+
+/* Cyber Cat 2K25 v1.1 — local reaction generator */
+const memeContext=$("#meme-context"),memeResult=$("#meme-result"),memeCaption=$("#meme-caption");
+const memeOptions={
+  "plot-twist":[
+    "Я моргнул — а сюжет уже в третьем сезоне. Окак.",
+    "Поворот был такой резкий, что даже сценарист вышел из чата.",
+    "Думал, это конец истории. Оказалось — обучающий уровень.",
+    "Всё шло по плану. План просто был секретный."
+  ],
+  awkward:[
+    "Я хотел промолчать, но лицо уже всё рассказало. Окак.",
+    "В комнате стало тихо. Даже Wi-Fi перестал мигать.",
+    "Сказал «и тебе» официанту, который пожелал приятного аппетита.",
+    "Мой внутренний голос попросил не вспоминать это перед сном."
+  ],
+  technology:[
+    "Перезапустил роутер. Теперь у него характер.",
+    "Техника сказала «обновление готово» и открыла портал в неизвестность.",
+    "Нажал одну кнопку. Получил три новых проблемы и бонусный квест.",
+    "Интернет пропал ровно в тот момент, когда я сказал «сейчас покажу»."
+  ],
+  plans:[
+    "План был идеальный. Реальность тоже пришла со своим.",
+    "В списке дел один пункт: составить список дел. Уже устал.",
+    "Вышел решить один вопрос. Вернулся с пятью новыми.",
+    "Поставил напоминание отдохнуть. Теперь у меня дедлайн на отдых."
+  ],
+  everyday:[
+    "Зашёл на минутку. Вышел с новым жизненным опытом.",
+    "Понедельник посмотрел на меня. Я посмотрел в ответ. Окак.",
+    "Всё под контролем. Контроль, правда, не мой.",
+    "Хотел продуктивный день. Получился сюжетный эксперимент."
+  ]
+};
+const memeContextLabels={
+  "plot-twist":"НЕОЖИДАННЫЙ ПОВОРОТ",
+  awkward:"НЕЛОВКИЙ МОМЕНТ",
+  technology:"ТЕХНИКА ОПЯТЬ ЧУДИТ",
+  plans:"ПЛАНЫ ПОШЛИ НЕ ТАК",
+  everyday:"ОБЫЧНЫЙ ДЕНЬ"
+};
+const generateMemeButton=$("#generate-meme"),copyMemeButton=$("#copy-meme"),shareMemeButton=$("#share-meme");
+let lastMemeIndex=-1;
+function generateMeme(){
+  if(!memeContext||!memeResult)return;
+  const context=memeContext.value,options=memeOptions[context]||memeOptions.everyday;
+  let nextIndex=options.length>1?Math.floor(Math.random()*options.length):0;
+  if(options.length>1&&nextIndex===lastMemeIndex)nextIndex=(nextIndex+1)%options.length;
+  lastMemeIndex=nextIndex;
+  memeResult.textContent=options[nextIndex];
+  if(memeCaption)memeCaption.textContent="СЦЕНАРИЙ: "+(memeContextLabels[context]||memeContextLabels.everyday);
+}
+function getMemeShareText(){
+  const phrase=memeResult?.textContent?.trim()||"Окак.";
+  const context=memeContextLabels[memeContext?.value]||"ОКАК";
+  return phrase+"\n\nCyber Cat 2K25 · "+context;
+}
+async function copyToClipboard(text){
+  try{
+    if(navigator.clipboard&&typeof navigator.clipboard.writeText==="function"){
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  }catch(error){/* Fall through to the selection-based compatibility path. */}
+  const field=document.createElement("textarea");
+  field.value=text;field.setAttribute("readonly","");
+  field.style.position="fixed";field.style.opacity="0";field.style.pointerEvents="none";
+  document.body.appendChild(field);field.select();field.setSelectionRange(0,field.value.length);
+  let copied=false;
+  try{copied=document.execCommand("copy")}catch(error){copied=false}
+  field.remove();
+  return copied;
+}
+if(generateMemeButton)generateMemeButton.addEventListener("click",generateMeme);
+if(memeContext)memeContext.addEventListener("change",generateMeme);
+if(copyMemeButton)copyMemeButton.addEventListener("click",async()=>{
+  const copied=await copyToClipboard(getMemeShareText());
+  showToast(copied?"Реакция скопирована":"Не получилось скопировать — выдели текст вручную");
+});
+if(shareMemeButton)shareMemeButton.addEventListener("click",async()=>{
+  const text=getMemeShareText();
+  if(typeof navigator.share==="function"){
+    try{await navigator.share({title:"Cyber Cat 2K25 — Окак",text,url:window.location.href});return}
+    catch(error){if(error&&error.name==="AbortError")return}
+  }
+  const copied=await copyToClipboard(text+"\n"+window.location.href);
+  showToast(copied?"Текст готов — скопировано для отправки":"Поделиться не удалось на этом устройстве");
+});
+
 const year=$("#year");if(year)year.textContent=String(new Date().getFullYear());setMotion(motionEnabled);
 })();
