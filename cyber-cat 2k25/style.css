@@ -38,3 +38,29 @@ body.motion-off #particle-canvas,body.motion-off .scanline{display:none}body.mot
 @media(max-width:800px){.meme-generator{padding:20px}.generator-heading{align-items:flex-start;flex-direction:column;gap:12px}.generator-heading>p{max-width:unset}.generator-layout{grid-template-columns:1fr}.generator-result{min-height:180px}.generator-result>p{font-size:clamp(23px,5vw,30px)}}
 @media(max-width:520px){.meme-generator{padding:15px;margin-bottom:22px}.generator-topline{font-size:7px}.generator-heading{padding:19px 0}.generator-heading h3{font-size:clamp(20px,6vw,26px)}.generator-heading>p{font-size:16px}.generator-controls select{font-size:16px}.generator-actions{grid-template-columns:1fr 1fr}.generator-actions #generate-meme{grid-column:1/-1}.generator-actions .button{min-height:46px;font-size:9px}.generator-result{padding:18px;min-height:190px}.generator-result-footer{font-size:7px}.generator-mark{font-size:25px}}
 @media(prefers-reduced-motion:reduce){.generator-actions .button:hover{transform:none}}
+
+
+/* Cyber Cat 2K25 v1.2 — local reaction history and favourites */
+.favorite-toggle{align-self:flex-start;display:inline-flex;align-items:center;gap:8px;min-height:38px;padding:8px 12px;border:1px solid rgba(77,245,232,.3);background:#101a2a;color:var(--cyan);font:9px var(--font-display);letter-spacing:.04em;cursor:pointer;transition:background .2s,border-color .2s}
+.favorite-toggle:hover,.favorite-toggle[aria-pressed="true"]{border-color:var(--pink);background:#ff4ca510;color:#ff83c5}
+.generator-library{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}
+.generator-list-panel{min-width:0;padding:20px;border:1px solid var(--line);background:linear-gradient(145deg,#0d1524,#090f1a)}
+.generator-list-header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.generator-list-header h4{display:flex;align-items:center;gap:8px;margin:6px 0 0;font:600 16px var(--font-display);letter-spacing:-.025em}
+.generator-count{display:inline-grid;min-width:23px;height:23px;place-items:center;padding:0 6px;border:1px solid #34445e;border-radius:20px;color:var(--cyan);font:10px var(--font-body)}
+.list-clear-button{border:1px solid var(--line);background:transparent;color:#9eabc3;padding:7px 9px;font:9px var(--font-display);cursor:pointer}
+.list-clear-button:hover{border-color:var(--pink);color:var(--pink)}
+.generator-list-note{margin:12px 0 15px;color:#71809a;font-size:14px;line-height:1.45}
+.reaction-list{display:flex;flex-direction:column;gap:8px;list-style:none;margin:0;padding:0}
+.reaction-list>li{display:flex;align-items:stretch;gap:6px;min-width:0;border:1px solid #29354a;background:#080e18}
+.reaction-restore{display:flex;flex:1;flex-direction:column;align-items:flex-start;gap:5px;min-width:0;padding:10px 11px;border:0;background:transparent;text-align:left;cursor:pointer}
+.reaction-restore:hover{background:#4df5e80a}
+.reaction-context{font:8px var(--font-display);letter-spacing:.08em;color:var(--cyan)}
+.reaction-text{width:100%;color:#dbe5f6;font-size:15px;line-height:1.35;overflow-wrap:anywhere}
+.reaction-remove{align-self:center;flex:0 0 34px;width:34px;height:34px;margin-right:5px;border:1px solid transparent;background:transparent;color:#7d8ca8;font-size:20px;cursor:pointer}
+.reaction-remove:hover{border-color:#ff4ca555;color:#ff83c5}
+.reaction-empty{padding:13px 11px;color:#7b8aa4;font-size:14px;line-height:1.45}
+.generator-library .generator-stamp{font-size:7px}
+.favorite-toggle:focus-visible,.list-clear-button:focus-visible,.reaction-restore:focus-visible,.reaction-remove:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+@media(max-width:800px){.generator-library{grid-template-columns:1fr}.generator-list-panel{padding:18px}.reaction-text{font-size:15px}}
+@media(max-width:520px){.favorite-toggle{min-height:42px;font-size:9px}.generator-library{gap:12px;margin-top:12px}.generator-list-panel{padding:15px}.generator-list-header h4{font-size:14px}.generator-list-note{font-size:13px}.reaction-restore{padding:10px}.reaction-context{font-size:7px}.reaction-text{font-size:15px}}
