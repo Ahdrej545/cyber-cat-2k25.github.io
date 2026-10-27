@@ -22,7 +22,7 @@
       "purpose": "any"
     },
     {
-      "src": "app-icon-512.png?v=2.0.1",
+      "src": "app-icon-512.png?v=2.0.2",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
