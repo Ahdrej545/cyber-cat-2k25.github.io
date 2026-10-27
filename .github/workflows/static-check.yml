@@ -13,6 +13,7 @@ on:
       - feature/cyber-cat-2k25-v1.3
       - feature/cyber-cat-2k25-v1.4
       - feature/cyber-cat-2k25-v1.5
+      - feature/cyber-cat-2k25-v1.6-gallery
 
 permissions:
   contents: read
@@ -89,8 +90,8 @@ jobs:
           check(nodeDataNames.every((name) => nodes.includes(name)),
             'every network detail entry has a matching node button');
 
-          check(html.includes('href="style.css?v=1.5.1"'), 'page links versioned stylesheet to bust stale caches');
-          check(html.includes('src="script.js?v=1.5.1"'), 'page links versioned JavaScript to bust stale caches');
+          check(html.includes('href="style.css?v=1.6.0"'), 'page links v1.6 versioned stylesheet to bust stale caches');
+          check(html.includes('src="script.js?v=1.6.0"'), 'page links v1.6 versioned JavaScript to bust stale caches');
 
           const generatorIds = ['meme-generator', 'meme-context', 'meme-result',
             'meme-caption', 'generate-meme', 'copy-meme', 'share-meme'];
@@ -152,6 +153,21 @@ jobs:
             'current generated reactions can be inserted into the image caption');
           check(js.includes('URL.createObjectURL(file)') && js.includes('URL.revokeObjectURL'),
             'uploaded image URLs are local and released when no longer needed');
+
+          const galleryIds = ['meme-template-gallery-title', 'meme-gallery-grid'];
+          const galleryControls = ['meme-gallery-filter', 'meme-gallery-card'];
+          check(galleryIds.every((id) => idSet.has(id)),
+            'ready-made meme gallery has its heading and card grid');
+          check(galleryControls.every((name) => html.includes(name)),
+            'gallery includes template cards and category filters');
+          check((html.match(/data-gallery-preset=/g) || []).length >= 6,
+            'gallery includes at least six ready-made templates');
+          check(js.includes('memeGalleryPresets') && js.includes('selectMemeGalleryPreset'),
+            'gallery presets can be applied to the meme editor');
+          check(js.includes('data-gallery-filter') && js.includes('memeGalleryFilters.forEach'),
+            'gallery category filters are wired to the interface');
+          check(js.includes('motif==="cat"') && js.includes('motif:"cat"'),
+            'cyber cat background motif is implemented');
 
           if (failed) process.exit(1);
           NODE
