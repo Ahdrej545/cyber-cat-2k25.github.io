@@ -146,7 +146,7 @@ jobs:
             'meme canvas exports at 1200 by 1200 pixels');
           check(js.includes('memeStudioCanvas.toBlob') && js.includes('"image/png"'),
             'meme studio downloads a rendered PNG');
-          check(js.includes('MEME_IMAGE_MAX_FILE_SIZE=8*1024*1024') && js.includes('image/png|jpeg|webp|gif'),
+          check(js.includes('MEME_IMAGE_MAX_FILE_SIZE=8*1024*1024') && js.includes('image/jpeg') && js.includes('image/webp') && js.includes('image/gif'),
             'uploaded images are type-checked and limited to 8 MB');
           check(js.includes('useCurrentReactionButton') && js.includes('memeResult?.textContent'),
             'current generated reactions can be inserted into the image caption');
