@@ -64,3 +64,5 @@ body.motion-off #particle-canvas,body.motion-off .scanline{display:none}body.mot
 .favorite-toggle:focus-visible,.list-clear-button:focus-visible,.reaction-restore:focus-visible,.reaction-remove:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
 @media(max-width:800px){.generator-library{grid-template-columns:1fr}.generator-list-panel{padding:18px}.reaction-text{font-size:15px}}
 @media(max-width:520px){.favorite-toggle{min-height:42px;font-size:9px}.generator-library{gap:12px;margin-top:12px}.generator-list-panel{padding:15px}.generator-list-header h4{font-size:14px}.generator-list-note{font-size:13px}.reaction-restore{padding:10px}.reaction-context{font-size:7px}.reaction-text{font-size:15px}}
+
+/* Cyber Cat 2K25 v1.3 — user-authored reactions */
