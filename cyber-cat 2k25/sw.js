@@ -9,7 +9,7 @@ const PRECACHE_URLS = [
   "./site.webmanifest",
   "./favicon.svg",
   "./app-icon-192.png",
-  "./app-icon-512.png",
+  "./app-icon-512.png?v=2.0.1",
   "./assets/sounds/cat-roar.mp3"
 ];
 
