@@ -203,3 +203,17 @@ body.motion-off #particle-canvas,body.motion-off .scanline{display:none}body.mot
 @media(max-width:1000px){.saved-meme-gallery-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:800px){.saved-meme-gallery{padding:20px}.saved-meme-gallery-heading{align-items:flex-start;flex-direction:column;gap:10px}.saved-meme-gallery-heading>p{max-width:none}.saved-meme-gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.saved-meme-card-content{padding:10px}}
 @media(max-width:520px){.saved-meme-gallery{padding:14px;margin-top:20px}.saved-meme-gallery-heading h4{font-size:24px}.saved-meme-gallery-heading>p{font-size:14px}.saved-meme-gallery-toolbar{align-items:flex-start;flex-direction:column}.saved-meme-gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.saved-meme-card-content{padding:8px;gap:7px}.saved-meme-caption{font-size:12px}.saved-meme-meta{font-size:10px}.saved-meme-card-actions{grid-template-columns:1fr}.saved-meme-action{min-height:38px;font-size:8px}.saved-meme-empty{padding:23px 12px}}
+
+
+/* Cyber Cat 2K25 v1.8 — local ZIP backup controls */
+.saved-meme-gallery-tools{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.saved-meme-backup-button{display:inline-flex;align-items:center;justify-content:center;min-height:35px;padding:8px 10px;border:1px solid #314158;background:#0b1422;color:#9eabc3;font:8px var(--font-display);letter-spacing:.04em;white-space:nowrap;cursor:pointer;transition:border-color .15s,color .15s,background .15s}
+.saved-meme-backup-button:hover{border-color:var(--cyan);background:#4df5e80a;color:var(--cyan)}
+.saved-meme-backup-button:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+.saved-meme-backup-button:disabled{opacity:.6;cursor:wait}
+.saved-meme-import-label{box-sizing:border-box}
+.saved-meme-import-input{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;clip-path:inset(50%)}
+.saved-meme-import-input:focus-visible+.saved-meme-backup-button,.saved-meme-import-label:focus-within{outline:2px solid var(--cyan);outline-offset:3px}
+.saved-meme-backup-note{margin:10px 0 16px;color:#71809a;font-size:12px;line-height:1.55}
+@media(max-width:900px){.saved-meme-gallery-tools{justify-content:flex-start}.saved-meme-gallery-toolbar{align-items:flex-start;flex-direction:column}}
+@media(max-width:520px){.saved-meme-gallery-tools{display:grid;width:100%;grid-template-columns:1fr 1fr;gap:7px}.saved-meme-backup-button{box-sizing:border-box;width:100%;min-width:0;padding:8px 5px;font-size:7px}.saved-meme-backup-note{font-size:11px}}
