@@ -104,7 +104,7 @@ jobs:
             'meme-history-count', 'meme-favorites-count', 'clear-meme-history'];
           check(libraryIds.every((id) => idSet.has(id)),
             'reaction history and favourites have all expected controls');
-          check(/localStorage\\.getItem/.test(js) && /localStorage\\.setItem/.test(js),
+          check(/localStorage\.getItem/.test(js) && /localStorage\.setItem/.test(js),
             'reaction history and favourites persist locally');
           check(/MAX_MEME_HISTORY=8/.test(js) && /MAX_MEME_FAVORITES=20/.test(js),
             'saved reaction lists have explicit size limits');
