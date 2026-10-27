@@ -18,6 +18,7 @@ on:
       - feature/cyber-cat-2k25-v1.8-gallery-backup
       - feature/cyber-cat-2k25-v1.9-native-meme-sharing
       - feature/cyber-cat-2k25-v2-pwa-offline
+      - feature/cyber-cat-2k25-v2.0.1-pwa-install-fix
 
 permissions:
   contents: read
@@ -48,6 +49,49 @@ jobs:
           test -f "cyber-cat 2k25/app-icon-192.png"
           test -f "cyber-cat 2k25/app-icon-512.png"
           test -f "cyber-cat 2k25/assets/sounds/cat-roar.mp3"
+      - name: Validate PNG app icons
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import pathlib
+          import struct
+          import zlib
+
+          root = pathlib.Path("cyber-cat 2k25")
+          expected = {"app-icon-192.png": (192, 192), "app-icon-512.png": (512, 512)}
+          signature = b"\\x89PNG\\r\\n\\x1a\\n"
+          for filename, dimensions in expected.items():
+              data = (root / filename).read_bytes()
+              if not data.startswith(signature):
+                  raise SystemExit(f"FAIL: {filename} is not a PNG")
+              offset = 8
+              got_dimensions = None
+              found_iend = False
+              found_idat = False
+              while offset + 12 <= len(data):
+                  length = struct.unpack_from(">I", data, offset)[0]
+                  kind = data[offset + 4:offset + 8]
+                  end = offset + 12 + length
+                  if end > len(data):
+                      raise SystemExit(f"FAIL: {filename} has a truncated {kind!r} chunk")
+                  payload = data[offset + 8:offset + 8 + length]
+                  expected_crc = struct.unpack_from(">I", data, offset + 8 + length)[0]
+                  if zlib.crc32(kind + payload) & 0xffffffff != expected_crc:
+                      raise SystemExit(f"FAIL: {filename} has an invalid CRC in {kind.decode('ascii', 'replace')}")
+                  if kind == b"IHDR":
+                      got_dimensions = struct.unpack_from(">II", payload, 0)
+                  elif kind == b"IDAT":
+                      found_idat = True
+                  elif kind == b"IEND":
+                      found_iend = True
+                      if end != len(data):
+                          raise SystemExit(f"FAIL: {filename} has bytes after IEND")
+                      break
+                  offset = end
+              if got_dimensions != dimensions or not found_idat or not found_iend:
+                  raise SystemExit(f"FAIL: {filename} has invalid structure or dimensions")
+              print(f"PASS: {filename} is a valid {dimensions[0]}x{dimensions[1]} PNG with all CRCs verified")
+          PY
       - name: Validate page structure and interactive controls
         shell: bash
         run: |
@@ -100,8 +144,8 @@ jobs:
           check(nodeDataNames.every((name) => nodes.includes(name)),
             'every network detail entry has a matching node button');
 
-          check(html.includes('href="style.css?v=2.0.0"'), 'page links v2.0 versioned stylesheet to bust stale caches');
-          check(html.includes('src="script.js?v=2.0.0"'), 'page links v2.0 versioned JavaScript to bust stale caches');
+          check(html.includes('href="style.css?v=2.0.1"'), 'page links v2.0.1 versioned stylesheet to bust stale caches');
+          check(html.includes('src="script.js?v=2.0.1"'), 'page links v2.0.1 versioned JavaScript to bust stale caches');
 
           let manifest = null;
           try { manifest = JSON.parse(fs.readFileSync(root + 'site.webmanifest', 'utf8')); }
@@ -122,6 +166,10 @@ jobs:
           check(sw.includes('CACHE_NAME') && sw.includes('cache.addAll') && sw.includes('skipWaiting') &&
             sw.includes('clients.claim') && sw.includes('event.respondWith'),
             'service worker precaches app shell and handles offline requests');
+          check(js.includes('getManualPwaInstallHelp') && js.includes('browser has not provided') === false,
+            'install button explains browser-specific manual installation paths');
+          check(js.includes('worker.state==="activated"') && js.includes('worker.state==="redundant"'),
+            'offline status waits for service worker activation and reports install failures');
 
           const generatorIds = ['meme-generator', 'meme-context', 'meme-result',
             'meme-caption', 'generate-meme', 'copy-meme', 'share-meme'];
