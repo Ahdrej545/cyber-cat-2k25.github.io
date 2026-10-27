@@ -35,7 +35,7 @@ const focusButton=$("#terminal-focus");if(focusButton&&input)focusButton.addEven
 const soundButton=$("#cat-sound");let catAudio=null;if(soundButton)soundButton.addEventListener("click",async()=>{try{if(!catAudio){catAudio=new Audio("assets/sounds/cat-roar.mp3");catAudio.preload="none"}catAudio.currentTime=0;await catAudio.play();showToast("Мяу! Звуковой модуль активирован")}catch(error){showToast("Звук не загрузился. Проверь соединение и файл аудио.")}});
 const cat=$("#cyber-cat");if(cat&&!reducedMotion.matches){cat.addEventListener("click",()=>{cat.animate([{transform:"translateY(0) rotate(0)"},{transform:"translateY(-12px) rotate(-3deg)"},{transform:"translateY(0) rotate(0)"}],{duration:450,easing:"ease-out"});showToast("Окак. Кот заметил тебя.")});cat.setAttribute("tabindex","0");cat.setAttribute("role","button");cat.setAttribute("aria-label","Нажми, чтобы активировать реакцию киберкота");cat.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();cat.click()}})}
 
-/* Cyber Cat 2K25 v1.1 — local reaction generator */
+/* Cyber Cat 2K25 v1.2 — local reaction history and favourites */
 const memeContext=$("#meme-context"),memeResult=$("#meme-result"),memeCaption=$("#meme-caption");
 const memeOptions={
   "plot-twist":[
@@ -77,7 +77,107 @@ const memeContextLabels={
   everyday:"ОБЫЧНЫЙ ДЕНЬ"
 };
 const generateMemeButton=$("#generate-meme"),copyMemeButton=$("#copy-meme"),shareMemeButton=$("#share-meme");
+const favoriteMemeButton=$("#favorite-meme"),historyList=$("#meme-history-list"),favoritesList=$("#meme-favorites-list");
+const historyCount=$("#meme-history-count"),favoritesCount=$("#meme-favorites-count"),clearHistoryButton=$("#clear-meme-history");
+const MEME_HISTORY_KEY="cybercat.v12.reaction-history",MEME_FAVORITES_KEY="cybercat.v12.reaction-favorites";
+const MAX_MEME_HISTORY=8,MAX_MEME_FAVORITES=20;
+
+function isValidStoredReaction(item){
+  return item&&typeof item.text==="string"&&item.text.trim().length>0&&item.text.length<=300&&
+    Object.prototype.hasOwnProperty.call(memeContextLabels,item.context);
+}
+function readStoredReactions(key,limit){
+  try{
+    const raw=window.localStorage.getItem(key);
+    if(!raw)return [];
+    const parsed=JSON.parse(raw);
+    if(!Array.isArray(parsed))return [];
+    return parsed.filter(isValidStoredReaction).slice(0,limit).map(item=>({
+      text:item.text,context:item.context,createdAt:Number.isFinite(item.createdAt)?item.createdAt:Date.now()
+    }));
+  }catch(error){return []}
+}
+function writeStoredReactions(key,items){
+  try{window.localStorage.setItem(key,JSON.stringify(items));return true}
+  catch(error){return false}
+}
+let memeHistoryItems=readStoredReactions(MEME_HISTORY_KEY,MAX_MEME_HISTORY);
+let memeFavoriteItems=readStoredReactions(MEME_FAVORITES_KEY,MAX_MEME_FAVORITES);
 let lastMemeIndex=-1;
+
+function getCurrentReaction(){
+  return {
+    text:memeResult?.textContent?.trim()||"Окак.",
+    context:memeContext?.value||"everyday",
+    createdAt:Date.now()
+  };
+}
+function isFavorite(reaction){
+  return memeFavoriteItems.some(item=>item.text===reaction.text&&item.context===reaction.context);
+}
+function updateFavoriteButton(){
+  if(!favoriteMemeButton)return;
+  const selected=isFavorite(getCurrentReaction());
+  favoriteMemeButton.setAttribute("aria-pressed",String(selected));
+  favoriteMemeButton.textContent=selected?"★ В избранном":"☆ В избранное";
+}
+function renderReactionList(element,items,kind){
+  if(!element)return;
+  element.replaceChildren();
+  if(items.length===0){
+    const empty=document.createElement("li");
+    empty.className="reaction-empty";
+    empty.textContent=kind==="history"?"Пока пусто — сгенерируй первую реакцию.":"Здесь появятся сохранённые реакции.";
+    element.appendChild(empty);
+    return;
+  }
+  items.forEach((item,index)=>{
+    const row=document.createElement("li");
+    const restore=document.createElement("button");
+    restore.type="button";
+    restore.className="reaction-restore";
+    restore.dataset.reactionAction="restore";
+    restore.dataset.reactionKind=kind;
+    restore.dataset.reactionIndex=String(index);
+    const context=document.createElement("span");
+    context.className="reaction-context";
+    context.textContent=memeContextLabels[item.context]||memeContextLabels.everyday;
+    const text=document.createElement("span");
+    text.className="reaction-text";
+    text.textContent=item.text;
+    restore.append(context,text);
+    const remove=document.createElement("button");
+    remove.type="button";
+    remove.className="reaction-remove";
+    remove.dataset.reactionAction="remove";
+    remove.dataset.reactionKind=kind;
+    remove.dataset.reactionIndex=String(index);
+    remove.setAttribute("aria-label",kind==="history"?"Удалить из истории":"Удалить из избранного");
+    remove.textContent="×";
+    row.append(restore,remove);
+    element.appendChild(row);
+  });
+}
+function renderMemeCollections(){
+  renderReactionList(historyList,memeHistoryItems,"history");
+  renderReactionList(favoritesList,memeFavoriteItems,"favorite");
+  if(historyCount)historyCount.textContent=String(memeHistoryItems.length);
+  if(favoritesCount)favoritesCount.textContent=String(memeFavoriteItems.length);
+  updateFavoriteButton();
+}
+function recordMeme(reaction){
+  memeHistoryItems=[reaction,...memeHistoryItems.filter(item=>!(item.text===reaction.text&&item.context===reaction.context))].slice(0,MAX_MEME_HISTORY);
+  writeStoredReactions(MEME_HISTORY_KEY,memeHistoryItems);
+  renderMemeCollections();
+}
+function restoreReaction(reaction){
+  if(!reaction||!memeResult)return;
+  if(memeContext)memeContext.value=reaction.context;
+  memeResult.textContent=reaction.text;
+  if(memeCaption)memeCaption.textContent="СЦЕНАРИЙ: "+(memeContextLabels[reaction.context]||memeContextLabels.everyday);
+  updateFavoriteButton();
+  showToast("Реакция восстановлена");
+}
 function generateMeme(){
   if(!memeContext||!memeResult)return;
   const context=memeContext.value,options=memeOptions[context]||memeOptions.everyday;
@@ -86,6 +186,7 @@ function generateMeme(){
   lastMemeIndex=nextIndex;
   memeResult.textContent=options[nextIndex];
   if(memeCaption)memeCaption.textContent="СЦЕНАРИЙ: "+(memeContextLabels[context]||memeContextLabels.everyday);
+  recordMeme(getCurrentReaction());
 }
 function getMemeShareText(){
   const phrase=memeResult?.textContent?.trim()||"Окак.";
@@ -110,6 +211,48 @@ async function copyToClipboard(text){
 }
 if(generateMemeButton)generateMemeButton.addEventListener("click",generateMeme);
 if(memeContext)memeContext.addEventListener("change",generateMeme);
+if(favoriteMemeButton)favoriteMemeButton.addEventListener("click",()=>{
+  const reaction=getCurrentReaction();
+  const existingIndex=memeFavoriteItems.findIndex(item=>item.text===reaction.text&&item.context===reaction.context);
+  if(existingIndex>=0){
+    memeFavoriteItems.splice(existingIndex,1);
+    const saved=writeStoredReactions(MEME_FAVORITES_KEY,memeFavoriteItems);
+    renderMemeCollections();
+    showToast(saved?"Удалено из избранного":"Удалено из текущего списка браузера");
+    return;
+  }
+  memeFavoriteItems=[reaction,...memeFavoriteItems].slice(0,MAX_MEME_FAVORITES);
+  const saved=writeStoredReactions(MEME_FAVORITES_KEY,memeFavoriteItems);
+  renderMemeCollections();
+  showToast(saved?"Добавлено в избранное":"Браузер не разрешил сохранить список надолго");
+});
+function handleReactionListClick(event){
+  const button=event.target.closest("button[data-reaction-action]");
+  if(!button)return;
+  const index=Number(button.dataset.reactionIndex),kind=button.dataset.reactionKind;
+  if(!Number.isInteger(index)||index<0)return;
+  const items=kind==="history"?memeHistoryItems:memeFavoriteItems;
+  if(index>=items.length)return;
+  if(button.dataset.reactionAction==="restore"){
+    restoreReaction(items[index]);
+    return;
+  }
+  if(button.dataset.reactionAction==="remove"){
+    items.splice(index,1);
+    const key=kind==="history"?MEME_HISTORY_KEY:MEME_FAVORITES_KEY;
+    writeStoredReactions(key,items);
+    renderMemeCollections();
+    showToast(kind==="history"?"Удалено из истории":"Удалено из избранного");
+  }
+}
+if(historyList)historyList.addEventListener("click",handleReactionListClick);
+if(favoritesList)favoritesList.addEventListener("click",handleReactionListClick);
+if(clearHistoryButton)clearHistoryButton.addEventListener("click",()=>{
+  memeHistoryItems=[];
+  writeStoredReactions(MEME_HISTORY_KEY,memeHistoryItems);
+  renderMemeCollections();
+  showToast("История очищена");
+});
 if(copyMemeButton)copyMemeButton.addEventListener("click",async()=>{
   const copied=await copyToClipboard(getMemeShareText());
   showToast(copied?"Реакция скопирована":"Не получилось скопировать — выдели текст вручную");
@@ -123,6 +266,7 @@ if(shareMemeButton)shareMemeButton.addEventListener("click",async()=>{
   const copied=await copyToClipboard(text+"\n"+window.location.href);
   showToast(copied?"Текст готов — скопировано для отправки":"Поделиться не удалось на этом устройстве");
 });
+renderMemeCollections();
 
 const year=$("#year");if(year)year.textContent=String(new Date().getFullYear());setMotion(motionEnabled);
 })();
